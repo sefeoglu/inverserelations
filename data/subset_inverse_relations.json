@@ -1,0 +1,42 @@
+[
+    {
+        "pid":"P25",
+        "name":"mother",
+        "definition":"female parent of the subject. For stepmother, use \"stepparent\" (P3448)"
+    },
+    {
+        "pid":"P22",
+        "name":"father",
+        "definition":"male parent of the subject. For stepfather, use \"stepparent\" (P3448)"
+    },
+    {
+        "pid":"P156",
+        "name":"followed by",
+        "definition":"immediately following item in a series of which the subject is a part [if the subject has been replaced, e.g. political offices, use \"replaced by\" (P1366)]"
+    },
+    {
+        "pid":"P155",
+        "name":"follows",
+        "definition":"immediately prior item in a series of which the subject is a part [if the subject has replaced the preceding item, e.g. political offices, use \"replaces\" (P1365)]"
+    },
+    {
+        "pid":"P527",
+        "name":"has part",
+        "definition":"part of this subject; inverse property of \"part of\" (P361). See also \"has parts of the class\" (P2670)."
+    },
+    {
+        "pid":"P3373",
+        "name":"sibling",
+        "definition":"the subject has the object as their sibling (brother, sister, etc.). Use \"relative\" (P1038) for siblings-in-law (brother-in-law, sister-in-law, etc.) and step-siblings (step-brothers, step-sisters, etc.)"
+    },
+    {
+        "pid":"P40",
+        "name":"child",
+        "definition":"subject has object as biological, foster, and\/or adoptive child"
+    },
+    {
+        "pid":"P361",
+        "name":"part of",
+        "definition":"object of which the subject is a part (it's not useful to link objects which are themselves parts of other objects already listed as parts of the subject). Inverse property of \"has part\" (P527, see also \"has parts of the class\" (P2670))."
+    }
+]
