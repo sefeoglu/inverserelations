@@ -75,21 +75,26 @@ def write_turtle_to_ttl(file_path, content):
         file.write(content)
 def clean_text(text):
     text = text.strip().split(':')[0]
-    text = text.strip().split(')')[1]
+    text = text.strip().split('.')[1].split('(')[-1]
     return text.strip()
 
 def evaluate_predictions(data, out_result_report):
-    predictions_head_to_tail = [ clean_text(item['predictions_1']) for item in data]
-    predictions_tail_to_head = [ clean_text(item['predictions_2']) for item in data]
+    predictions_head_to_tail = [ clean_text(item['predictions_1'][0]) for item in data]
+    predictions_tail_to_head = [ clean_text(item['predictions_2'][0]) for item in data]
     gt_head_to_tail = [ item['ground_truth_1'] for item in data]
     gt_tail_to_head = [ item['ground_truth_2'] for item in data]
+
     accuracy_head_to_tail = accuracy_score(gt_head_to_tail, predictions_head_to_tail)
     accuracy_tail_to_head = accuracy_score(gt_tail_to_head, predictions_tail_to_head)
     print(f"Accuracy Head to Tail: {accuracy_head_to_tail}")
     print(f"Accuracy Tail to Head: {accuracy_tail_to_head}")
     results = {
         "accuracy_head_to_tail": accuracy_head_to_tail,
-        "accuracy_tail_to_head": accuracy_tail_to_head
+        "accuracy_tail_to_head": accuracy_tail_to_head,
+        'predictions_head_to_tail': predictions_head_to_tail,
+        'predictions_tail_to_head': predictions_tail_to_head,
+        'gt_head_to_tail': gt_head_to_tail,
+        'gt_tail_to_head': gt_tail_to_head
     }
 
     write_json_file(results, out_result_report)
@@ -98,12 +103,15 @@ def evaluate_predictions(data, out_result_report):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate model predictions against ground truth.")
 
-    parser.add_argument("--predictions_file", type=str, default="", help="Path to the JSON file containing model predictions.")
-    parser.add_argument("--out_result_report", type=str, default="", help="Path to the JSON file containing evaluation results.")
+    parser.add_argument("--predictions_file", type=str, default="/Users/sefika/phd_projects/converse_relations/data/experiment_1/gpt_predictions_1.json", help="Path to the JSON file containing model predictions.")
+    parser.add_argument("--out_result_report", type=str, default="/Users/sefika/phd_projects/converse_relations/data/experiment_1/report_2.json", help="Path to the JSON file containing evaluation results.")
     
     args = parser.parse_args()
-    
-    predictions_data = read_json_file(args.predictions_file)
+    predictions_data = []
+    for i in range(1, 5):
+        predictions_file = f"/Users/sefika/phd_projects/converse_relations/data/experiment_1/gpt_predictions_with_desc_{i}.json"
+        predictions_data.extend( read_json_file(predictions_file))
+
     out_result_report = args.out_result_report
     
     evaluate_predictions(predictions_data, out_result_report)
