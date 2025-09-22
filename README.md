@@ -11,7 +11,7 @@ Evaluated Relations are follows:
 
 * Has Part <-> Part of
 
-## LLMs
+
 # Supported Models
 
 | #  | Model          | Status |
