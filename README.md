@@ -15,7 +15,7 @@ Evaluated Relations are follows:
 
 | #  | Model          | Status | Head-to-Tail (No Desc) | Tail-to-Head (No Desc) | Head-to-Tail (With Desc) | Tail-to-Head (With Desc) |
 |----|----------------|--------|------------------------|------------------------|--------------------------|--------------------------|
-| 1  | GPT-3.5        | ✔️     |                        |                        |                          |                          |
+| 1  | GPT-3.5        | ✔️     |    14.58%              |       30.23%           |    44.43%                |    49.07%                |
 | 2  | Gemini 2.5 Pro | ✔️     |                        |                        |                          |                          |
 | 3  | Owen 2.5       | ⏳     |                        |                        |                          |                          |
 | 4  | Llama 3.1      | ⏳     |                        |                        |                          |                          |
