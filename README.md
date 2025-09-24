@@ -20,5 +20,5 @@ Evaluated Relations are follows:
 | 3  | Owen 2.5       | ⏳     |                        |                        |                          |                          |
 | 4  | Llama 3.1      | ⏳     |                        |                        |                          |                          |
 | 5  | Mistral v3     | ✔️     |                        |                        |                          |                          |
-| 6  | Flan-T5        | ✔️     |                        |                        |                          |                          |
+| 6  | Flan-T5        | ✔️     |    39.16%              |       60.54%           |    41.08%                |    62.42                 |
 
