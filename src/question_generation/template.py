@@ -101,8 +101,9 @@ def get_template_first(item: str, relations) -> str:
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
                 C .) None of the above.
+                Please choose A, B, or C.
                 Answer:"""
-    return template
+    return template, rel_name1
 def get_template_second(item: str, relations) -> str:
     """
     _summary_
@@ -119,26 +120,77 @@ def get_template_second(item: str, relations) -> str:
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
                 C .) None of the above.
+                Please choose A, B, or C.
                 Answer:"""
-    return template
+    return template, rel_name2
+def get_template_nodesc_first(item: str, relations) -> str:
+    """
+    _summary_
+    
+    Args:
+        item (str): _description_
+        Returns:
+            str: _description_"""
+    rel_name1, rel_name2, _, _ = relation_info(item, relations)
+
+    template = f""" What is the relation from {item['h'][0]} to {item['t'][0]} in the sentence?
+                Sentence: {' '.join(item['tokens'])}
+                A .) {rel_name1}.
+                B .) {rel_name2}.
+                C .) None of the above.
+                Please choose A, B, or C.
+                Answer:"""
+    return template, rel_name1
+def get_template_nodesc_second(item: str, relations) -> str:
+    """
+    _summary_
+    
+    Args:
+        item (str): _description_
+        Returns:
+            str: _description_"""
+    
+    rel_name1, rel_name2, rel_desc1, rel_desc2 = relation_info(item, relations)
+
+    template = f""" What is the relation from {item['t'][0]} to {item['h'][0]} in the sentence?
+                Sentence: {' '.join(item['tokens'])}
+                A .) {rel_name1}.
+                B .) {rel_name2}.
+                C .) None of the above.
+                Please choose A, B, or C.
+                Answer:"""
+    return template, rel_name2
 
 def all_data(data, relations, out_file):
     templates = []
 
     for item in data:
-        template = get_template_first(item, relations)
-        item['template_1'] = template
-        
-        template = get_template_second(item, relations)
-        item['template_2'] = template
+        template, ground_truth_1 = get_template_first(item, relations)
+        item['template_1'], item['ground_truth_1'] = template, ground_truth_1
+
+        template, ground_truth_2 = get_template_second(item, relations)
+        item['template_2'], item['ground_truth_2'] = template, ground_truth_2
         templates.append(item)
     shuffle(templates)
     write_json_file(templates, out_file)
 
 
+def all_data_nodesc(data, relations, out_file):
+    templates = []
+
+    for item in data:
+        template, ground_truth_1 = get_template_nodesc_first(item, relations)
+        item['template_1'], item['ground_truth_1'] = template, ground_truth_1
+
+        template, ground_truth_2 = get_template_nodesc_second(item, relations)
+        item['template_2'], item['ground_truth_2'] = template, ground_truth_2
+        templates.append(item)
+    shuffle(templates)
+    write_json_file(templates, out_file)
 
 if __name__ == "__main__":
     data = read_json_file("/Users/sefika/phd_projects/converse_relations/data/cleaned_asymetrics.json")
     relations = read_json_file("/Users/sefika/phd_projects/converse_relations/data/subset_inverse_relations.json")
     out_file = "/Users/sefika/phd_projects/converse_relations/data/templates.json"
     all_data(data, relations, out_file)
+    all_data_nodesc(data, relations, out_file.replace(".json", "_nodesc.json"))

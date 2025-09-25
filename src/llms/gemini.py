@@ -1,44 +1,48 @@
-import google.generativeai as genai
+from http import client
+from google import genai
 import json
 import os
 import argparse
+from tqdm import tqdm
+import time
 def generate_text_with_gemini(question, config):
     """
     Gemini 2.5 Pro modelini kullanarak basit bir metin oluşturma örneği.
     """
-    # API anahtarını ayarla
-    genai.configure(api_key=config["api_key"])
-    # Gemini 2.5 Pro modelini seçiyoruz
-    model = genai.GenerativeModel(config["model"])
 
-    response = model.generate_content(question)
+    client = genai.Client(api_key=config["gemini_api_key"])
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite", contents=question +"Please only answer with A, B, or C."
+    )
     return response.text
 
 
 def bulk_test(templates, out_file, config):
     results = []
-    for item in templates:
+    for item in tqdm(templates, desc="Processing templates"):
        
-       template_1 = item['template_1']
-       template_2 = item['template_2']
+        template_1 = item['template_1']
+        template_2 = item['template_2']
 
-       prediction_1 = generate_text_with_gemini(template_1, config)
-       prediction_2 = generate_text_with_gemini(template_2, config)
+        prediction_1 = generate_text_with_gemini(template_1, config)
+        prediction_2 = generate_text_with_gemini(template_2, config)
 
-       item['predictions_1'] = prediction_1.split('\n')
-       item['predictions_2'] = prediction_2.split('\n')
+        item['predictions_1'] = prediction_1.split('\n')
+        item['predictions_2'] = prediction_2.split('\n')
 
-       results.append(item)
+        results.append(item)
 
-       with open(out_file, 'w') as f:
-                json.dump(results, f, indent=4)
+        with open(out_file, 'w') as f:
+            json.dump(results, f, indent=4)
+        time.sleep(1)  # API rate limitine dikkat etmek için kısa bir bekleme ekleyin
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Combine contextual information from multiple sources.")
-    parser.add_argument("--input_file", type=str, default="/Users/sefika/phd_projects/converse_relations/data/experiment_2/templates_without_desc.json", help="Path to the input JSON file containing contextual information.")
-    parser.add_argument("--output_file", type=str, default="/Users/sefika/phd_projects/converse_relations/data/experiment_2/gemini_predictions_without_desc.json", help="Path to the output JSON file to save combined information.")
-    parser.add_argument("--config", type=str, default="/Users/sefika/phd_projects/converse_relations/data/gpt_key.json", help="Path to the config JSON file.")
+    parser.add_argument("--input_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/experiment_1/templates.json", help="Path to the input JSON file containing contextual information.")
+    parser.add_argument("--output_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/gemini/gemini_predictions_with_desc.json", help="Path to the output JSON file to save combined information.")
+    parser.add_argument("--config", type=str, default="/Users/sefika/phd_projects/converse_relations/data/gemini_key.json", help="Path to the config JSON file.")
     
     args = parser.parse_args()
     input_data = json.load(open(args.input_file, 'r'))
