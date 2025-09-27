@@ -12,8 +12,15 @@ Evaluated Relations are follows:
 * Follows <-> Followed_by
 
 * Has Part <-> Part of
+## Supported Approaches
 
-# Supported Models
+* Multiple Choice Question w/o Relation Type Description from Wikidata
+  
+* RAG
+  
+* CoT
+  
+## Supported Models
 
 | #  | Model          | Status | h-to-t (No Desc) | t-to-h (No Desc) | h-to-t (With Desc) | t-to-h (With Desc) |RAG (h-to-t)|RAG (t-to-h)|CoT (h-to-t)|CoT (t-to-h)|
 |----|----------------|--------|------------------|------------------|--------------------|--------------------|------------|------------|------------|------------|
