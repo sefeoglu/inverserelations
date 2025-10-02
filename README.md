@@ -16,7 +16,7 @@ Evaluated Relations are follows:
 
 * Multiple Choice Question w/o Relation Type Description from Wikidata
   
-* RAG
+* RAG: with triples of entities (from Wikidata) w/o Relation Type Description from Wikidata
   
 * CoT
   
