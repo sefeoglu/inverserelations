@@ -1,9 +1,12 @@
 This project's paper is planned to submit for Web Conf. 2026
 
 ## Converse (Inverse) Relation Pairs from FewRel 1.0 
-Evaluation of LLMs on converse relations
-Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
-Evaluated Relations are follows:
+
+Evaluation of LLMs on converse relations.
+
+ Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
+
+ Evaluated Relations are follows:
 
 * Child <-> Mother
 
