@@ -15,11 +15,61 @@ Evaluation of LLMs on inverse relations.
 * Follows <-> Followed_by
 
 * Has Part <-> Part of
+
+## Folders
+```bash
+.
+├── LICENSE
+├── README.md
+├── data
+├── fig
+├── results
+│   ├── gemini
+│   ├── gpt
+│   ├── llama3
+│   ├── mistral
+│   ├── qwen
+│   └──  t5
+└── src
+    ├── analysis
+    ├── data_preparation
+    ├── evaluation
+    ├── llms
+    ├── notebooks
+    ├── question_generation
+    └── utils.py
+```
+
+## Usage:
+* For open sources
+```bash
+cd  converse_relations/llms
+python llm.py \
+  --input_file ./templates_with_desc.json \
+  --output_file ./output_t5_xxl_rag_with_desc.json \
+  --model_name google/flan-t5-xl
+
+```
+Chat GPT
+```bash
+cd  converse_relations/llms
+python chat_GPT.py \
+  --input_file ./templates_with_desc.json \
+  --output_file ./gpt_with_desc.json \
+  --config ./gpt_key.json
+```
+Gemini
+```bash
+cd  converse_relations/llms
+python gemini.py \
+  --input_file ./templates_with_desc.json \
+  --output_file ./gpt_with_desc.json \
+  --config ./gemini_keys.json
+```
+
 ## Supported Approaches
 
-* Multiple Choice Question w/o Relation Type Description from Wikidata
-  
-* RAG: with triples of entities (from Wikidata) w/o Relation Type Description from Wikidata
+* Multiple Choice Question w/o Relation Type Description and Rela and Entity Descs. from Wikidata
   
 * CoT
   
