@@ -6,6 +6,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5For
 import json
 import os
 from tqdm import tqdm
+import argparse
 
 
 def read_json(path):
@@ -187,9 +188,15 @@ def main(data, out, model_name="google/flan-t5-xl"):
       return responses
 
 if __name__ =="__main__":
-  input_file = "./templates_with_desc.json"
-  out = "drive/MyDrive/webconf_rag/output_t5_xxl_rag_with_desc.json"
-  model_name="google/flan-t5-xl"
+  argparser = argparse.ArgumentParser(description="Generate responses using a Hugging Face LLM.")
+  argparser.add_argument("--input_file", type=str, default="./templates_with_desc.json", help="Path to the input JSON file containing prompts.")
+  argparser.add_argument("--output_file", type=str, default="./output_t5_xxl_rag_with_desc.json", help="Path to the output JSON file to save responses.")
+  argparser.add_argument("--model_name", type=str, default="google/flan-t5-xl", help="Hugging Face model name.")
+  args = argparser.parse_args()
+
+  input_file = args.input_file
+  out = args.output_file
+  model_name = args.model_name
   data = read_json(input_file)
 
   responses = main(data, out, model_name=model_name)

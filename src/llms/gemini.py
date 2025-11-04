@@ -40,10 +40,10 @@ def bulk_test(templates, out_file, config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Combine contextual information from multiple sources.")
-    parser.add_argument("--input_file", type=str, default="/Users/sefika/phd_projects/converse_relations/data/rag_data_1/templates_with_desc.json", help="Path to the input JSON file containing contextual information.")
-    parser.add_argument("--output_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/gemini/gemini_rag_predictions_with_desc.json", help="Path to the output JSON file to save combined information.")
-    parser.add_argument("--config", type=str, default="/Users/sefika/phd_projects/converse_relations/data/gemini_key.json", help="Path to the config JSON file.")
-    
+    parser.add_argument("--input_file", type=str, default="./templates_with_desc.json", help="Path to the input JSON file containing contextual information.")
+    parser.add_argument("--output_file", type=str, default="./results/gemini/gemini_rag_predictions_with_desc.json", help="Path to the output JSON file to save combined information.")
+    parser.add_argument("--config", type=str, default="./data/gemini_key.json", help="Path to the config JSON file.")
+
     args = parser.parse_args()
     input_data = json.load(open(args.input_file, 'r'))
     out_path = args.output_file

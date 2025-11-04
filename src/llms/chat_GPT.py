@@ -60,14 +60,14 @@ def prediction_gpt(input_data, config, out_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Combine contextual information from multiple sources.")
-    parser.add_argument("--input_file", type=str, default="/Users/sefika/phd_projects/converse_relations/data/rag_data_1/templates_with_desc.json", help="Path to the input JSON file containing contextual information.")
-    parser.add_argument("--output_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/gpt/gpt_rag_with_desc_3.json", help="Path to the output JSON file to save combined information.")
-    parser.add_argument("--config", type=str, default="/Users/sefika/phd_projects/converse_relations/data/gpt_key.json", help="Path to the config JSON file.")
-    
+    parser.add_argument("--input_file", type=str, default="./templates_with_desc.json", help="Path to the input JSON file containing contextual information.")
+    parser.add_argument("--output_file", type=str, default="./results/gpt/gpt_with_desc.json", help="Path to the output JSON file to save combined information.")
+    parser.add_argument("--config", type=str, default="./data/gpt_key.json", help="Path to the config JSON file.")
+
     args = parser.parse_args()
     config = json.load(open(args.config, 'r'))
 
-    input_data = json.load(open(args.input_file, 'r'))[3301:]  # Adjust slicing as needed
+    input_data = json.load(open(args.input_file, 'r'))  # Adjust slicing as needed
     out_path = args.output_file
     predictions = prediction_gpt(input_data, config, out_path)
     print(f"Predictions saved to {out_path}")
