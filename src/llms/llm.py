@@ -132,10 +132,10 @@ class LLM(object):
             gen_kwargs.update(dict(do_sample=False))
 
         with torch.inference_mode():
-            outputs = model.generate(input_ids, **gen_kwargs)
+            outputs = self.model.generate(input_ids, **gen_kwargs)
 
         generated = outputs[:, input_ids.shape[-1]:]
-        response = tokenizer.batch_decode(generated, skip_special_tokens=True)[0].strip()
+        response = self.tokenizer.batch_decode(generated, skip_special_tokens=True)[0].strip()
 
         return response
 

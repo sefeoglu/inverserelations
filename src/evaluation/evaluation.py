@@ -3,7 +3,7 @@ from random import shuffle
 import os
 import sys
 import json
-from sklearn.metrics import  accuracy_score
+from sklearn.metrics import  accuracy_score, f1_score, recall_score, precision_score
 import argparse
 
 def read_json_file(file_path):
@@ -75,12 +75,12 @@ def write_turtle_to_ttl(file_path, content):
         file.write(content)
 def clean_text(text):
     text = text.strip().split(':')[0]
-    text = text.strip().split('.')[1].split('(')[-1]
+    text = text.strip().split('.')[-1].split('(')[-1]
     return text.strip()
 def gemini_convert_predictions(prediction):
     # print(prediction)
     
-    gt_dict = {'A': prediction['ground_truth_1'], 'B': prediction['ground_truth_2'], 'C':''}
+    gt_dict = {'A': prediction['ground_truth_1'], 'B': prediction['ground_truth_2'], 'C':'', '':''}
     print(gt_dict)
      
     return gt_dict
@@ -91,32 +91,71 @@ def mistral_convert_predictions(prediction):
     # print(prediction['predictions_1'][0])
     pred_1, pred_2 = '', ''
     for truth in truths:
-        if truth in prediction['predictions_1'][0][0].split('\n')[0]:
+        if truth in prediction['predictions_1']:
             pred_1 = truth
-        if truth in prediction['predictions_2'][0][0].split('\n')[0]:
+        if truth in prediction['predictions_2']:
+            pred_2 = truth
+    print(pred_1, pred_2)
+    return pred_1, pred_2
+def llama3_convert_predictions(prediction):
+    # print(prediction)
+    truths = [prediction['ground_truth_1'], prediction['ground_truth_2']]
+    # print(prediction['predictions_1'][0])
+    pred_1, pred_2 = '', ''
+    for truth in truths:
+        print(prediction['predictions_1'])
+        if truth in prediction['predictions_1']:
+            print(truth)
+            pred_1 = truth
+        if truth in prediction['predictions_2']:
             pred_2 = truth
     print(pred_1, pred_2)
     return pred_1, pred_2
 
+def qwen_convert_predictions(prediction):
+    # print(prediction)
+    truths = [prediction['ground_truth_1'], prediction['ground_truth_2']]
+    gt_dict = {'A': prediction['ground_truth_1'], 'B': prediction['ground_truth_2'], 'C':'', '':''}
+    print(gt_dict)
+    return gt_dict
+
+
 def evaluate_predictions(data, out_result_report, model_name="gpt-3.5-turbo"):
+
     if model_name == 'gemini':
         predictions_head_to_tail = [ gemini_convert_predictions(item)[item['predictions_1'][0][0]] for item in data]
         predictions_tail_to_head = [ gemini_convert_predictions(item)[item['predictions_2'][0][0]] for item in data]
     elif model_name == 'gpt-3.5-turbo' or model_name == 'gpt-4':
-        predictions_head_to_tail = [ clean_text(item['predictions_1'][0]) for item in data]
-        predictions_tail_to_head = [ clean_text(item['predictions_2'][0]) for item in data]
+        predictions_head_to_tail = [ clean_text(item['predictions_1']) for item in data]
+        predictions_tail_to_head = [ clean_text(item['predictions_2']) for item in data]
     elif model_name == 'mistral':
         predictions = [ (mistral_convert_predictions(item)) for item in data]
         # print( predictions)
         predictions_head_to_tail = [ item[0] for item in predictions]
         predictions_tail_to_head = [ item[1] for item in predictions]
-    
+    elif model_name == 'llama3':
+        predictions_head_to_tail = [ gemini_convert_predictions(item)[item['predictions_1'][0][0]] for item in data]
+        predictions_tail_to_head = [ gemini_convert_predictions(item)[item['predictions_2'][0][0]] for item in data]
+    elif model_name == 'qwen':
+        # predictions = [ (qwen_convert_predictions(item)) for item in data]
+        predictions_head_to_tail = [ gemini_convert_predictions(item)[item['predictions_1'][0][0]] for item in data]
+        predictions_tail_to_head = [ gemini_convert_predictions(item)[item['predictions_2'][0][0]] for item in data]
+    else:
+        predictions_head_to_tail = [ item['predictions_1'][0][0] for item in data]
+        predictions_tail_to_head = [ item['predictions_2'][0][0] for item in data]
+
     gt_head_to_tail = [ item['ground_truth_1'] for item in data]
     gt_tail_to_head = [ item['ground_truth_2'] for item in data]
     # print((predictions_head_to_tail))
     # print(len(gt_head_to_tail))
     accuracy_head_to_tail = accuracy_score(gt_head_to_tail, predictions_head_to_tail)
     accuracy_tail_to_head = accuracy_score(gt_tail_to_head, predictions_tail_to_head)
+    f1_head_to_tail = f1_score(gt_head_to_tail, predictions_head_to_tail, average='micro')
+    f1_tail_to_head = f1_score(gt_tail_to_head, predictions_tail_to_head, average='micro')
+    p_tail_to_head = precision_score(gt_tail_to_head, predictions_tail_to_head, average='micro')
+    p_head_to_tail = precision_score(gt_head_to_tail, predictions_head_to_tail, average='micro')
+    r_tail_to_head = recall_score(gt_tail_to_head, predictions_tail_to_head, average='micro')
+    r_head_to_tail = recall_score(gt_head_to_tail, predictions_head_to_tail, average='micro')
     print(f"Accuracy Head to Tail: {accuracy_head_to_tail}")
     print(f"Accuracy Tail to Head: {accuracy_tail_to_head}")
     results = {
@@ -124,6 +163,12 @@ def evaluate_predictions(data, out_result_report, model_name="gpt-3.5-turbo"):
         "accuracy_tail_to_head": accuracy_tail_to_head,
         'predictions_head_to_tail': predictions_head_to_tail,
         'predictions_tail_to_head': predictions_tail_to_head,
+        'f1_head_to_tail': f1_head_to_tail,
+        'f1_tail_to_head': f1_tail_to_head,
+        'precision_tail_to_head': p_tail_to_head,
+        'recall_tail_to_head': r_tail_to_head,
+        'precision_head_to_tail': p_head_to_tail,
+        'recall_head_to_tail': r_head_to_tail,
         'gt_head_to_tail': gt_head_to_tail,
         'gt_tail_to_head': gt_tail_to_head
     }
@@ -134,17 +179,15 @@ def evaluate_predictions(data, out_result_report, model_name="gpt-3.5-turbo"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate model predictions against ground truth.")
 
-    parser.add_argument("--predictions_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/mistral/output_mistral_v3_with_desc.json", help="Path to the JSON file containing model predictions.")
-    parser.add_argument("--out_result_report", type=str, default="/Users/sefika/phd_projects/converse_relations/results/mistral/report_mistral_v3_with_desc.json", help="Path to the JSON file containing evaluation results.")
-    
+    parser.add_argument("--predictions_file", type=str, default="/Users/sefika/phd_projects/converse_relations/results/gpt/gpt_rag_with_desc.json", help="Path to the JSON file containing model predictions.")
+    parser.add_argument("--out_result_report", type=str, default="/Users/sefika/phd_projects/converse_relations/results/webconf_rag/report_gpt_rag_with_desc.json", help="Path to the JSON file containing evaluation results.")
+
     args = parser.parse_args()
     predictions_data = []
     predictions_file = args.predictions_file
     predictions_data.extend( read_json_file(predictions_file))
-    # for i in range(1, 5):
-    #     predictions_file = f"/Users/sefika/phd_projects/converse_relations/data/experiment_1/gpt_predictions_with_desc_{i}.json"
-    #     predictions_data.extend( read_json_file(predictions_file))
+
 
     out_result_report = args.out_result_report
 
-    evaluate_predictions(predictions_data, out_result_report, model_name="mistral")
+    evaluate_predictions(predictions_data, out_result_report, model_name="gpt-3.5-turbo")
