@@ -1,4 +1,4 @@
-This project's paper is planned to submit for Web Conf. 2026
+This project's paper is to submit for Web Conf. 2026
 
 ## Converse (Inverse) Relation Pairs from FewRel 1.0 
 
