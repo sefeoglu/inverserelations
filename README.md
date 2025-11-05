@@ -70,10 +70,12 @@ python gemini.py \
 ## Supported Approaches
 
 * Multiple Choice Question w/o Relation Type Description and Rela and Entity Descs. from Wikidata
-  
-* CoT
-  
+
 ## Supported Models
+Visualization
+
+![image](https://github.com/sefeoglu/inverserelations/blob/master/fig/desc_acc_viz.png)
+
 | **Model**                | **Without Desc**<br>Head→Tail | **Without Desc**<br>Tail→Head | **With Relation Desc**<br>Head→Tail | **With Relation Desc**<br>Tail→Head | **With Relation + Entity Desc**<br>Head→Tail | **With Relation + Entity Desc**<br>Tail→Head |
 | ------------------------ | ----------------------------- | ----------------------------- | ----------------------------------- | ----------------------------------- | -------------------------------------------- | -------------------------------------------- |
 | GPT-3.5 Turbo            | 14.58%                        | 30.23%                        | 44.43%                              | 49.07%                              | 45.84%                                       | 48.72%                                       |
