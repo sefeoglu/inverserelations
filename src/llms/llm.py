@@ -98,7 +98,7 @@ class LLM(object):
             {"role": "user", "content": prompt},
         ]
 
-        # ✅ apply_chat_template is a tokenizer method, not model
+ 
         input_ids = self.tokenizer.apply_chat_template(
             messages,
             add_generation_prompt=True,
