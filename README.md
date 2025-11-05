@@ -1,6 +1,6 @@
 This project's paper is to submit for Web Conf. 2026
 
-## Converse (Inverse) Relation Pairs from FewRel 1.0 
+## Inverse Relation Pairs from FewRel 1.0 
 
 Evaluation of LLMs on inverse relations.
 
