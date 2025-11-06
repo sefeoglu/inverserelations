@@ -4,6 +4,9 @@ This project's paper is to submit for Web Conf. 2026
 
 Evaluation of LLMs on inverse relations.
 
+
+![image](https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png)
+
  Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
 
  Evaluated Relations are follows:
