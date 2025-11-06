@@ -1,4 +1,4 @@
-This project's paper is to submit for Web Conf. 2026
+This project's paper "Evaluation of LLM Capabilities on Inverse-Pair Relations" is to submit for Web Conf. 2026
 
 ## Inverse Relation Pairs from FewRel 1.0 
 
