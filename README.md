@@ -18,7 +18,7 @@ Evaluation of LLMs on inverse relations.
 
 ## Supported Approaches
 
-* Multiple Choice Question w/o Relation Type Description and Rela and Entity Descs. from Wikidata
+* Multiple Choice Question w/o Relation Type Description, and Rel. and Entity Descs. from Wikidata
 
 ## Supported Models
 Visualization
