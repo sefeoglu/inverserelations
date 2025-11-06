@@ -9,15 +9,12 @@ Evaluation of LLMs on inverse relations.
 
  Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
 
- Evaluated Relations are follows:
-
-* Child <-> Mother
-
-* Child <-> Father
-
-* Follows <-> Followed_by
-
-* Has Part <-> Part of
+| Relation Pair               |
+|-----------------------------|
+| Child ↔ Mother              |
+| Child ↔ Father              |
+| Follows ↔ Followed_by       |
+| Has Part ↔ Part of          |
 
 ## Supported Approaches
 
