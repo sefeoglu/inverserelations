@@ -8,6 +8,7 @@ Evaluation of LLMs on inverse relations.
 ![image](https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png)
 
  Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
+ Flan-T5 distributions: [here](https://github.com/sefeoglu/inverserelations/blob/master/src/notebooks/converse_relations.ipynb)
 
 | Relation Pair               |
 |-----------------------------|
