@@ -1,11 +1,11 @@
-This project's paper "Evaluation of LLM Capabilities on Inverse-Pair Relations" is to submit for Web Conf. 2026
-
 ## Inverse Relation Pairs from FewRel 1.0 
-
+This project's paper "Evaluation of LLM Capabilities on Inverse-Pair Relations" is to submit for Web Conf. 2026
 Evaluation of LLMs on inverse relations.
 
+<p align="center">
+  <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="300"/>
+</p>
 
-![image](https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png)
 
  Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
  Flan-T5 distributions: [here](https://github.com/sefeoglu/inverserelations/blob/master/src/notebooks/converse_relations.ipynb)
