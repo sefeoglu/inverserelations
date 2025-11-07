@@ -3,7 +3,7 @@ This project's paper "Evaluation of LLM Capabilities on Inverse-Pair Relations" 
 Evaluation of LLMs on inverse relations.
 
 <p align="center">
-  <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="300"/>
+  <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="400"/>
 </p>
 
 
