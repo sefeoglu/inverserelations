@@ -1,5 +1,5 @@
 ## Inverse Relation Pairs from FewRel 1.0 
-This project's paper "Evaluation of LLM Capabilities on Inverse-Pair Relations" is to submit for Web Conf. 2026
+This project's paper is to submit for KR'2026
 Evaluation of LLMs on inverse relations.
 
 <p align="center">
