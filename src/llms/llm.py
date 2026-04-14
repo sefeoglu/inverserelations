@@ -164,9 +164,6 @@ def main(data, out, model_name="google/flan-t5-xl"):
 
 
       responses = []
-      llm_instance = LLM(model_name)
-      tokenizer = llm_instance.tokenizer
-      model = llm_instance.model
 
       for index, item in enumerate(data):
 
@@ -174,10 +171,14 @@ def main(data, out, model_name="google/flan-t5-xl"):
 
 
         if model_name!="google/flan-t5-xl":
+            llm_instance = LLM(model_name)
             head_to_tail = llm_instance.get_prediction_chat_prediction( item['template_1'])
+            llm_instance = LLM(model_name)
             tail_to_head = llm_instance.get_prediction_chat_prediction( item['template_2'])
         else:
+            llm_instance = LLM(model_name)
             head_to_tail = llm_instance.get_prediction( item['template_1'])
+            llm_instance = LLM(model_name)
             tail_to_head = llm_instance.get_prediction( item['template_2'])
 
         item["predictions_1"] = head_to_tail
