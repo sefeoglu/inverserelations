@@ -1,5 +1,5 @@
 ## Inverse Relation Pairs from FewRel 1.0 
-This project's paper is to submit for KR'2026
+This project's paper is to submit for possible publication
 Evaluation of LLMs on inverse relations.
 
 <p align="center">
