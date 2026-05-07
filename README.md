@@ -44,11 +44,21 @@ In addition to this, we examine if the models are familiar with entity represent
 ```
 
 ## Usage:
-* For open sources
+
 ```bash
 cd inverserelations/llms
+```
+* Synthetic data generations
+
+* Predictions
+```
+python artificial_entity_generation.py \
+    
 python llm.py \
   --input_file ./templates_with_desc.json \
   --output_file ./output_t5_xxl_rag_with_desc.json \
   --model_name google/flan-t5-xl
+
+```
+
 
