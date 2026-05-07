@@ -55,8 +55,8 @@ cd inverserelations/llms
 python artificial_entity_generation.py \
     
 python llm.py \
-  --input_file ./templates_with_desc.json \
-  --output_file ./output_t5_xxl_rag_with_desc.json \
+  --input_file ./input_file_name.json \
+  --output_file ./out_filename.json \
   --model_name google/flan-t5-xl
 
 ```
