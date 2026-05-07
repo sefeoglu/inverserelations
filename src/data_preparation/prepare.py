@@ -76,6 +76,7 @@ def report_not_match(data, file):
     print(f"Total not match: {count}")
     write_json(relations, file)
     return count
+
 if __name__ == "__main__":
 
     val_data = read_json('val_wiki.json')
@@ -98,7 +99,7 @@ if __name__ == "__main__":
             value['r_pid'] = key
             train_new.append(value)
     
-    train_new = all_data_reannotate(train_new, file='./train_wiki_checked_1.json')
-    val_new = all_data_reannotate(val_new, file='./val_wiki_checked_1.json')
+    train_new = all_data_reannotate(train_new, file='./train_fewrel.json')
+    val_new = all_data_reannotate(val_new, file='./val_fewrel.json')
 
     print("Done")
