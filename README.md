@@ -1,4 +1,4 @@
-## Inverse Relation Pairs from FewRel 1.0 
+## Reversing Arrows
 This project's paper is to be submitted for possible publication
 Evaluation of LLMs on inverse relations.
 
