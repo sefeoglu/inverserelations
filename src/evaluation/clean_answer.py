@@ -3,10 +3,7 @@ import argparse
 
 from utils import read_json_file, write_json_file
 
-
-
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Clean model predictions for evaluation.")
     parser.add_argument(
         "--input",
@@ -39,3 +36,5 @@ if __name__ == "__main__":
         cleaned_data.append(cleaned_item)
     
     write_json_file(cleaned_data, output_path)
+if __name__ == "__main__":
+    main()
