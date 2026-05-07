@@ -37,7 +37,6 @@ In addition to this, we examine if the models are familiar with entity represent
     ├── data_preparation
     ├── evaluation
     ├── llms
-    ├── notebooks
     ├── question_generation
     ├── report
     └── utils.py
