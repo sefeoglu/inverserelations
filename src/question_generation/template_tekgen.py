@@ -260,16 +260,16 @@ def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
 
 
 def wiki_tekgen():
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/bulk_output_with_inverse.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/tekgen_relations.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/rag_data_1/tekgen.json"
+    data = read_json_file("../inverserelations/data/wikidata_tekgen_data/bulk_output_with_inverse.json")
+    relations = read_json_file("../inverserelations/data/wikidata_tekgen_data/tekgen_relations.json")
+    out_file = "../inverserelations/data/mqa/tekgen.json"
     all_data(data, relations, out_file.replace(".json", "_with_desc.json"), type_ent = "TEKGEN")
     # all_data_nodesc(data, relations, out_file.replace(".json", "_nodesc.json"), "TEKGEN")
 
 def wiki_tekgen_artificial():
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/bulk_output_with_inverse_artificial.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/tekgen_relations.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/rag_data_1/artificial_tekgen.json"
+    data = read_json_file("../inverserelations/data/wikidata_tekgen_data/bulk_output_with_inverse_artificial.json")
+    relations = read_json_file("../inverserelations/data/wikidata_tekgen_data/tekgen_relations.json")
+    out_file = "../inverserelations/data/mqa/artificial_tekgen.json"
     all_data(data, relations, out_file.replace(".json", "_with_desc.json"), type_ent = "AI")
     # all_data_nodesc(data, relations, out_file.replace(".json", "_nodesc.json"), "AI")
 if __name__ == "__main__":
