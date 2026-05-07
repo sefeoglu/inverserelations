@@ -4,11 +4,12 @@ Bulk Artificial Entity Generation Script
 This script efficiently processes large JSON files to generate artificial/fake entities
 for sensitive information. It uses Microsoft Presidio for PII detection and Faker
 for generating realistic fake data with progress tracking and batch processing.
-
 Dependencies:
     pip install presidio-analyzer presidio-anonymizer faker tqdm
 """
 
+import argparse
+from ast import arg
 import os
 import json
 import logging
@@ -20,7 +21,6 @@ from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
 from presidio_anonymizer.operators import Operator, OperatorType
 from faker import Faker
-
 
 # Configure logging
 logging.basicConfig(
@@ -399,8 +399,8 @@ def process_streaming_output(
                     try:
                         item = json.loads(line)
 
-                        entity_1 = item.get(sub_label_field, "")
-                        entity_2 = item.get(obj_label_field, "")
+                        entity_1 = item.get(head_field, "")
+                        entity_2 = item.get(tail_field, "")
 
                         if entity_1 and entity_2:
                             artificial_data = anonymizer.anonymize_entity_pair(
@@ -441,31 +441,30 @@ def process_streaming_output(
 
 def main():
     """Main execution function with example usage."""
-
-    # Example 1: Process bulk output format
     logger.info("=" * 70)
     logger.info("EXAMPLE 1: Processing bulk output format")
     logger.info("=" * 70)
-    
-    process_bulk_output(
-        input_path="../zenodo/reversingarrows/original_fewrel_inverse.json",
-        output_path="../zenodo/reversingarrows/synthetic_fewrel_inverse.json",
-        sub_label_field="head",
-        obj_label_field="tail"
+    parser  = argparse.ArgumentParser(description="Process bulk output JSON file.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="../zenodo/reversingarrows/original_fewrel_inverse.json",
+        help="Path to input JSON file containing bulk output data.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="../zenodo/reversingarrows/synthetic_fewrel_inverse.json",
+        help="Path to output JSON file for processed data.",
     )
 
-    # Example 2: Process cleaned asymmetrics format
-    logger.info("\n" + "=" * 70)
-    logger.info("EXAMPLE 2: Processing cleaned asymmetrics format")
-    logger.info("=" * 70)
-    
-    process_cleaned_asymmetrics(
-        input_path="../zenodo/reversingarrows/cleaned_asymmetrics_data.json",
-        output_path="../zenodo/reversingarrows/artificial_data.json",
-        head_field="h",
-        tail_field="t",
-        head_index=0,
-        tail_index=0
+    args = parser.parse_args()
+
+    process_bulk_output(
+        input_path=args.input,
+        output_path=args.output,
+        head_label_field="head",
+        tail_label_field="tail"
     )
 
 
