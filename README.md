@@ -24,7 +24,6 @@ Evaluation of LLMs on inverse relations.
 ## Supported Models
 Visualization
 
-![image](https://github.com/sefeoglu/inverserelations/blob/master/fig/desc_acc_viz.png)
 
 | **Model**                | **Without Desc**<br>Head→Tail | **Without Desc**<br>Tail→Head | **With Relation Desc**<br>Head→Tail | **With Relation Desc**<br>Tail→Head | **With Relation + Entity Desc**<br>Head→Tail | **With Relation + Entity Desc**<br>Tail→Head |
 | ------------------------ | ----------------------------- | ----------------------------- | ----------------------------------- | ----------------------------------- | -------------------------------------------- | -------------------------------------------- |
