@@ -6,9 +6,7 @@ Evaluation of LLMs on inverse relations.
   <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="400"/>
 </p>
 
-
  Dataset is available on [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
- Flan-T5 distributions: [here](https://github.com/sefeoglu/inverserelations/blob/master/src/notebooks/converse_relations.ipynb)
 
 | Relation Pair               |
 |-----------------------------|
@@ -19,12 +17,8 @@ Evaluation of LLMs on inverse relations.
 
 ## Supported Approaches
 
-* Multiple Choice Question w/o Relation Type Description, and Rel. and Entity Descs. from Wikidata
-
-## Supported Models
-Visualization
-
-
+* Multiple Choice Question w/o Relation Type Description.
+In addition to this, we examine if the models are familiar with entity representations.
 
 ## Folders
 ```bash
@@ -52,7 +46,7 @@ Visualization
 ## Usage:
 * For open sources
 ```bash
-cd  converse_relations/llms
+cd inverserelations/llms
 python llm.py \
   --input_file ./templates_with_desc.json \
   --output_file ./output_t5_xxl_rag_with_desc.json \
