@@ -32,22 +32,21 @@ Visualization
 ├── LICENSE
 ├── README.md
 ├── data
+│   ├── ablation-tekgen
+│   └── mqa
+│       ├── fewrel
+│       └── tekgen
 ├── fig
-├── results
-│   ├── gemini
-│   ├── gpt
-│   ├── llama3
-│   ├── mistral
-│   ├── qwen
-│   └──  t5
+├── notebooks
 └── src
-    ├── analysis
-    ├── data_preparation
-    ├── evaluation
-    ├── llms
-    ├── notebooks
-    ├── question_generation
-    └── utils.py
+    ├── analysis
+    ├── data_preparation
+    ├── evaluation
+    ├── llms
+    ├── notebooks
+    ├── question_generation
+    ├── report
+    └── utils.py
 ```
 
 ## Usage:
