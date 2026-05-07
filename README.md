@@ -74,10 +74,9 @@ All evaluations are performed using zero-shot multiple-choice prompting.
 ## Citation
 
 ```bibtex
-@inproceedings{efeoglu2026reversing,
+@misc{efeoglu2026reversing,
   title={Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
   author={Efeoglu, Sefika and Paschke, Adrian},
-  booktitle={ISWC 2026 Resource Track},
   year={2026}
 }
 
