@@ -257,13 +257,13 @@ def process_bulk_output(
     # Process each item
     for idx, item in enumerate(tqdm(data, desc="Processing bulk output"), 1):
         try:
-            entity_1 = item.get(sub_label_field, "")
-            entity_2 = item.get(obj_label_field, "")
+            entity_1 = item.get(head_field, "")
+            entity_2 = item.get(tail_field, "")
 
             if not entity_1 or not entity_2:
                 logger.warning(
                     f"Item {idx}: Missing required fields "
-                    f"({sub_label_field}, {obj_label_field})"
+                    f"({head_field}, {tail_field})"
                 )
                 new_data.append(item)
                 continue
