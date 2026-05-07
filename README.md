@@ -69,45 +69,17 @@ All evaluations are performed using zero-shot multiple-choice prompting.
 - Dataset:  [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
 - Code: GitHub
 - Experimental Results: [Zenodo](https://zenodo.org/records/19650827)
-- 
-## Folders
-```bash
-.
-├── LICENSE
-├── README.md
-├── data
-│   ├── ablation-tekgen
-│   └── mqa
-│       ├── fewrel
-│       └── tekgen
-├── fig
-├── notebooks
-└── src
-    ├── analysis
-    ├── data_preparation
-    ├── evaluation
-    ├── llms
-    ├── question_generation
-    ├── report
-    └── utils.py
-```
 
-## Usage:
 
-```bash
-cd inverserelations/llms
-```
-* Synthetic data generations
+## Citation
 
-* Predictions
-```
-python artificial_entity_generation.py \
-    
-python llm.py \
-  --input_file ./input_file_name.json \
-  --output_file ./out_filename.json \
-  --model_name google/flan-t5-xl
+```bibtex
+@inproceedings{efeoglu2026reversing,
+  title={Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
+  author={Efeoglu, Sefika and Paschke, Adrian},
+  booktitle={ISWC 2026 Resource Track},
+  year={2026}
+}
 
-```
 
 
