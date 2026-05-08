@@ -1,8 +1,8 @@
 # Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs
 
 [![Hugging Face Dataset](https://img.shields.io/badge/🤗%20Dataset-Hugging%20Face-yellow)](https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations)
-[![DOI](https://zenodo.org/badge/1013436618.svg)](https://doi.org/10.5281/zenodo.19650827)
 [![DOI](https://img.shields.io/badge/DOI-10.57967%2Fhf%2F8462-blue)](https://doi.org/10.57967/hf/8462)
+[![Zenodo](https://img.shields.io/badge/Zenodo-19650827-blue)](https://zenodo.org/records/19650827)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
