@@ -28,24 +28,6 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 - direction-aware semantic understanding,
 - and robustness under entity perturbation.
 
----
-
-# Motivation
-
-Large Language Models have demonstrated strong performance in:
-
-- relation extraction,
-- ontology learning,
-- knowledge graph generation,
-- and knowledge graph completion.
-
-However, existing benchmarks rarely evaluate whether models truly understand **relation directionality**. In directed knowledge graphs, semantic meaning depends on both the relation type and the direction between entities. 
-
-Previous studies report that relation classification models struggle when inverse relation pairs are included in the label space. 
-
-To address this limitation, we introduce a benchmark specifically designed for evaluating inverse relations at the sentence level.
-
----
 
 # Relation Types
 
@@ -213,8 +195,6 @@ The paper evaluates five open-source LLMs:
 - Mistral-7B-Instruct-v0.3
 
 ---
-
-
 
 # Resources
 
