@@ -66,12 +66,11 @@ All evaluations are performed using zero-shot multiple-choice prompting.
 
 ## Resource Availability
 
-- Dataset:  [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
-- Code: GitHub
+- Dataset:  [🤗](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations) with MIT License
+- Code: GitHub with MIT
 - Experimental Results: [Zenodo](https://zenodo.org/records/19650827)
 
 
-## MIT License
 
 ## Citation
 
@@ -86,7 +85,6 @@ All evaluations are performed using zero-shot multiple-choice prompting.
   doi = { 10.57967/hf/8462 },
   howpublished = {https://github.com/sefeoglu/inverserelations}
 }
-
 
 
 
