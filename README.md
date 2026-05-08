@@ -18,7 +18,7 @@ Inverse relations are semantically sensitive because reversing the argument orde
 represent inverse semantic directions.
 
 <p align="center">
-  <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="450"/>
+  <img src="https://github.com/sefeoglu/inverserelations/blob/master/figure/example.png" width="450"/>
 </p>
 
 Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
