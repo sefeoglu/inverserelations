@@ -209,11 +209,10 @@ The paper evaluates five open-source LLMs:
 ```bibtex
 
 @misc{fewrel_inverse_2025,
-  author = {Sefeoglu},
+  author = {Sefika Efeoglu, and Adrian Paschke},
   title = { Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
   year = {2026},
   publisher = {GitHub/HuggingFace},
-  journal = {GitHub repository},
   doi = { 10.57967/hf/8462 },
   howpublished = {https://github.com/sefeoglu/inverserelations}
 }
