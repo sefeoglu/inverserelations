@@ -51,18 +51,28 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 │   └── utils.py      --> Utility functions for read and write operations
 ```
 ## Usage
-1. Clone the repository:
-   ```bash
-  git clone https://github.com/sefeoglu/inverserelations.git
-  cd inverserelations
-  pip install -r requirements.txt
-  
-python src/data_preparation/construct_dataset.py --help
-python src/question_generation/generate_questions.py --help
-python src/llms/llm.py --help
-python src/evaluation/evaluate.py --help
-    ```
-# Relation Types
+1. 
+```bash
+git clone https://github.com/sefeoglu/inverserelations.git
+cd inverserelations
+
+```
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+3. Run Construction scripts to generate the dataset variants (original, synthetic, mathematical variables):
+```bash
+python src/data_preparation/construct_dataset.py --input_dir ./data/mqa/fewrel --output_dir ./data/mqa/fewrel/constructed
+```
+4. Run Question Generation scripts to create multiple-choice questions with and without relation descriptions:
+```bash
+python src/question_generation/generate_questions.py --input_dir ./data/mqa/fewrel/constructed --output_dir ./data/mqa/fewrel/questions
+```
+5. Run Evaluation scripts to evaluate model predictions against ground truth and generate reports:
+```bash
+python src/evaluation/evaluation.py --ground-truth ./data/mqa/fewrel/questions
+```
 
 The benchmark contains the following inverse relation pairs derived from FewRel and Wikidata: 
 

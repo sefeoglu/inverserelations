@@ -191,7 +191,7 @@ def main(data, out, model_name="google/flan-t5-xl"):
 if __name__ =="__main__":
   argparser = argparse.ArgumentParser(description="Generate responses using a Hugging Face LLM.")
   argparser.add_argument("--input_file", type=str, default="./templates_with_desc.json", help="Path to the input JSON file containing prompts.")
-  argparser.add_argument("--output_file", type=str, default="./output_t5_xxl_rag_with_desc.json", help="Path to the output JSON file to save responses.")
+  argparser.add_argument("--output_file", type=str, default="./output_t5_with_desc.json", help="Path to the output JSON file to save responses.")
   argparser.add_argument("--model_name", type=str, default="google/flan-t5-xl", help="Hugging Face model name.")
   args = argparser.parse_args()
 

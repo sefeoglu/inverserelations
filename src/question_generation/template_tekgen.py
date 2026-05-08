@@ -1,8 +1,8 @@
-
 from random import shuffle
 import os
 import sys
 import json
+import argparse
 
 def read_json_file(file_path):
     """
@@ -122,7 +122,7 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
 
 def get_template_second(item: str, relations, type_ent = "AI") -> str:
     """
-    _summary_
+    Generates a template for the second question in a relation extraction task.
     
     Args:
         item (str): _description_
@@ -155,6 +155,7 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
                     Please choose A, B, or C.
                     Answer:"""
     return template, rel_name2
+
 def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
     """
     Generates a template for the first question in a relation extraction task without descriptions.
@@ -192,7 +193,7 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
 
 def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     """
-    _summary_
+    Generates a template for the second question in a relation extraction task without descriptions.
     
     Args:
         item (str): _description_
@@ -231,6 +232,15 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     return template, rel_name2
 
 def all_data(data, relations, out_file, type_ent = "AI"):
+    """
+    Generate templates with descriptions.
+    
+    Args:
+        data: List of data items
+        relations: Relations dictionary
+        out_file: Output file path
+        type_ent: Entity type (AI, TEKGEN, etc.)
+    """
     templates = []
 
     for item in data:
@@ -245,6 +255,15 @@ def all_data(data, relations, out_file, type_ent = "AI"):
 
 
 def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
+    """
+    Generate templates without descriptions.
+    
+    Args:
+        data: List of data items
+        relations: Relations dictionary
+        out_file: Output file path
+        type_ent: Entity type (AI, TEKGEN, etc.)
+    """
     templates = []
 
     for item in data:
@@ -255,25 +274,133 @@ def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
         item['template_2'], item['ground_truth_2'] = template, ground_truth_2
         templates.append(item)
     shuffle(templates)
-
     write_json_file(templates, out_file)
 
 
-def wiki_tekgen():
-    data = read_json_file("../inverserelations/data/wikidata_tekgen_data/bulk_output_with_inverse.json")
-    relations = read_json_file("../inverserelations/data/wikidata_tekgen_data/tekgen_relations.json")
-    out_file = "../inverserelations/data/mqa/tekgen.json"
-    all_data(data, relations, out_file.replace(".json", "_with_desc.json"), type_ent = "TEKGEN")
-    # all_data_nodesc(data, relations, out_file.replace(".json", "_nodesc.json"), "TEKGEN")
-
-def wiki_tekgen_artificial():
-    data = read_json_file("../inverserelations/data/wikidata_tekgen_data/bulk_output_with_inverse_artificial.json")
-    relations = read_json_file("../inverserelations/data/wikidata_tekgen_data/tekgen_relations.json")
-    out_file = "../inverserelations/data/mqa/artificial_tekgen.json"
-    all_data(data, relations, out_file.replace(".json", "_with_desc.json"), type_ent = "AI")
-    # all_data_nodesc(data, relations, out_file.replace(".json", "_nodesc.json"), "AI")
-if __name__ == "__main__":
-   
-    wiki_tekgen()
-    wiki_tekgen_artificial()
+def process_wiki_tekgen(data_file, relations_file, output_file, include_nodesc=False, type_ent="TEKGEN"):
+    """
+    Process WikiTekGen data.
     
+    Args:
+        data_file: Path to data JSON file
+        relations_file: Path to relations JSON file
+        output_file: Path for output file
+        include_nodesc: Whether to include nodesc version
+        type_ent: Entity type
+    """
+    data = read_json_file(data_file)
+    relations = read_json_file(relations_file)
+    
+    all_data(data, relations, output_file.replace(".json", "_with_desc.json"), type_ent=type_ent)
+    
+    if include_nodesc:
+        all_data_nodesc(data, relations, output_file.replace(".json", "_without_desc.json"), type_ent=type_ent)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate relation templates from WikiTekGen or similar data sources.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate templates for WikiTekGen with descriptions
+  python script.py --data data.json --relations relations.json --output output.json
+
+  # Generate templates with both descriptions and without
+  python script.py --data data.json --relations relations.json --output output.json --include-nodesc
+
+  # Specify entity type (default: TEKGEN)
+  python script.py --data data.json --relations relations.json --output output.json --type-ent AI
+
+  # Generate templates for artificial WikiTekGen data
+  python script.py --data artificial_data.json --relations relations.json --output artificial_output.json --type-ent AI
+        """
+    )
+
+    parser.add_argument(
+        '--data',
+        type=str,
+        required=True,
+        help='Path to the input data JSON file'
+    )
+    
+    parser.add_argument(
+        '--relations',
+        type=str,
+        required=True,
+        help='Path to the relations JSON file'
+    )
+    
+    parser.add_argument(
+        '--output',
+        type=str,
+        required=True,
+        help='Path for the output file (will create _with_desc.json and optionally _without_desc.json)'
+    )
+    
+    parser.add_argument(
+        '--type-ent',
+        type=str,
+        default='TEKGEN',
+        choices=['TEKGEN', 'AI', 'WIKI', 'OTHER'],
+        help='Entity type for template generation (default: TEKGEN)'
+    )
+    
+    parser.add_argument(
+        '--include-nodesc',
+        action='store_true',
+        help='Also generate templates without descriptions (_without_desc.json)'
+    )
+
+    args = parser.parse_args()
+
+    # Validate input files exist
+    if not os.path.exists(args.data):
+        parser.error(f"Data file not found: {args.data}")
+    if not os.path.exists(args.relations):
+        parser.error(f"Relations file not found: {args.relations}")
+
+    # Create output directory if it doesn't exist
+    output_dir = os.path.dirname(args.output)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created output directory: {output_dir}")
+
+    print(f"Processing WikiTekGen data...")
+    print(f"Data file: {args.data}")
+    print(f"Relations file: {args.relations}")
+    print(f"Output file: {args.output}")
+    print(f"Entity type: {args.type_ent}")
+    print(f"Include without descriptions: {args.include_nodesc}")
+    print()
+
+    try:
+        process_wiki_tekgen(
+            args.data,
+            args.relations,
+            args.output,
+            include_nodesc=args.include_nodesc,
+            type_ent=args.type_ent
+        )
+        
+        print(f"✓ Templates generated successfully!")
+        print(f"✓ Output files:")
+        print(f"  - {args.output.replace('.json', '_with_desc.json')}")
+        if args.include_nodesc:
+            print(f"  - {args.output.replace('.json', '_without_desc.json')}")
+    except FileNotFoundError as e:
+        print(f"✗ Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"✗ Error decoding JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyError as e:
+        print(f"✗ Error: Missing expected key in data - {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"✗ Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

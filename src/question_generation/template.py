@@ -1,8 +1,8 @@
-
 from random import shuffle
 import os
 import sys
 import json
+import argparse
 
 def read_json_file(file_path):
     """
@@ -185,6 +185,7 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
                     Please choose A, B, or C.
                     Answer:"""
     return template, rel_name2
+
 def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
     """
     _summary_
@@ -231,6 +232,7 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
                     Please choose A, B, or C.
                     Answer:"""
     return template, rel_name1
+
 def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     """
     _summary_
@@ -302,39 +304,114 @@ def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
     shuffle(templates)
     write_json_file(templates, out_file)
 
-def fewrel_mathematical_variable():
-
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/zenodo/original_fewrel_inverse.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/zenodo/fewrel_inverse_relations.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/rag_data_1/mathematical_variable_templates.json"
+def fewrel_mathematical_variable(data_file, relations_file, out_file):
+    data = read_json_file(data_file)
+    relations = read_json_file(relations_file)
     
     all_data(data, relations, out_file.replace(".json", "_with_desc.json"), "MT")
     all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"), "MT")
 
-def fewrel_artificial_data():
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/zenodo/artificial_fewrel_inverse.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/zenodo/fewrel_inverse_relations.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/rag_data_1/artificial_templates.json"
+def fewrel_artificial_data(data_file, relations_file, out_file):
+    data = read_json_file(data_file)
+    relations = read_json_file(relations_file)
     all_data(data, relations, out_file.replace(".json", "_with_desc.json"), "AI")
     all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"), "AI")
 
-def fewrel():
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/data/cleaned_asymetrics.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/data/subset_inverse_relations.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/templates.json"
+def fewrel(data_file, relations_file, out_file):
+    data = read_json_file(data_file)
+    relations = read_json_file(relations_file)
     all_data(data, relations, out_file.replace(".json", "_with_desc.json"))
     all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"))
 
-def wiki_tekgen():
-    data = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/bulk_output.json")
-    relations = read_json_file("/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/bulk_relation_pairs.json")
-    out_file = "/Users/sefika/phd_projects/converse_relations/data/wikidata_tekgen_data/tec.json"
-    all_data(data, relations, out_file.replace(".json", "_with_desc.json"))
-    all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"))
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate relation templates from JSON data files.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate templates for mathematical variables
+  python script.py --mode mt --data data.json --relations relations.json --output output.json
+
+  # Generate templates for artificial data
+  python script.py --mode ai --data data.json --relations relations.json --output output.json
+
+  # Generate templates for fewrel (default mode)
+  python script.py --mode fewrel --data data.json --relations relations.json --output output.json
+        """
+    )
+
+    parser.add_argument(
+        '--mode',
+        type=str,
+        choices=['mt', 'ai', 'fewrel'],
+        default='fewrel',
+        help='Processing mode: mt (mathematical variable), ai (artificial data), or fewrel (default)'
+    )
+    
+    parser.add_argument(
+        '--data',
+        type=str,
+        required=True,
+        help='Path to the input data JSON file'
+    )
+    
+    parser.add_argument(
+        '--relations',
+        type=str,
+        required=True,
+        help='Path to the relations JSON file'
+    )
+    
+    parser.add_argument(
+        '--output',
+        type=str,
+        required=True,
+        help='Path for the output file (will create _with_desc.json and _without_desc.json variants)'
+    )
+
+    args = parser.parse_args()
+
+    # Validate input files exist
+    if not os.path.exists(args.data):
+        parser.error(f"Data file not found: {args.data}")
+    if not os.path.exists(args.relations):
+        parser.error(f"Relations file not found: {args.relations}")
+
+    # Create output directory if it doesn't exist
+    output_dir = os.path.dirname(args.output)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created output directory: {output_dir}")
+
+    print(f"Processing mode: {args.mode}")
+    print(f"Data file: {args.data}")
+    print(f"Relations file: {args.relations}")
+    print(f"Output file: {args.output}")
+    print()
+
+    try:
+        if args.mode == 'mt':
+            fewrel_mathematical_variable(args.data, args.relations, args.output)
+        elif args.mode == 'ai':
+            fewrel_artificial_data(args.data, args.relations, args.output)
+        else:  # fewrel
+            fewrel(args.data, args.relations, args.output)
+        
+        print(f"✓ Templates generated successfully!")
+        print(f"✓ Output files:")
+        print(f"  - {args.output.replace('.json', '_with_desc.json')}")
+        print(f"  - {args.output.replace('.json', '_without_desc.json')}")
+    except FileNotFoundError as e:
+        print(f"✗ Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"✗ Error decoding JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"✗ Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    fewrel_mathematical_variable()
-    fewrel_artificial_data()
-    # wiki_tekgen()
-    
+    main()
