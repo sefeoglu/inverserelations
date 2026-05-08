@@ -28,7 +28,40 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 - direction-aware semantic understanding,
 - and robustness under entity perturbation.
 
-
+# Repository Structure
+```bash
+├── LICENSE
+├── README.md
+├── data
+│   ├── ablation-tekgen
+│   └── mqa
+│       ├── fewrel
+│       └── tekgen
+├── figure
+├── notebooks
+├── requirements.txt                --> Python dependencies
+├── reversing_arrows_croissant.ttl  ---> RDF representation of the benchmark
+├── src
+│   ├── analysis            --> Data analysis and visualization scripts
+│   ├── data_preparation    --> Scripts for dataset construction and synthetic entity generation
+│   ├── evaluation         --> Evaluation scripts for model performance analysis and run metrics calculation
+│   ├── llms             --> LLM prompting and response generation scripts
+│   ├── question_generation --> Scripts for generating multiple-choice questions with and without relation descriptions and mathematical variable entity anonymization
+│   ├── report           --> Metrics Results visualization and report generation scripts
+│   └── utils.py      --> Utility functions for read and write operations
+```
+## Usage
+1. Clone the repository:
+   ```bash
+  git clone https://github.com/sefeoglu/inverserelations.git
+  cd inverserelations
+  pip install -r requirements.txt
+  
+python src/data_preparation/construct_dataset.py --help
+python src/question_generation/generate_questions.py --help
+python src/llms/llm.py --help
+python src/evaluation/evaluate.py --help
+    ```
 # Relation Types
 
 The benchmark contains the following inverse relation pairs derived from FewRel and Wikidata: 
