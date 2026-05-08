@@ -1,0 +1,168 @@
+@prefix cr: <http://mlcommons.org/croissant/> .
+@prefix sc: <https://schema.org/> .
+
+[
+  a sc:Dataset ;
+  sc:name "InverseRelationsBenchmark" ;
+  sc:description "Benchmark based on FewRel with original entity mentions and synthetic substitutions for robustness testing." ;
+  cr:conformsTo <http://mlcommons.org/croissant/1.0> ;
+
+  sc:distribution (
+    [
+      a cr:FileObject ;
+      sc:name "original_fewrel_inverse.json" ;
+      sc:contentUrl "original_fewrel_inverse.json" ;
+      sc:encodingFormat "application/json" ;
+      sc:identifier "#original_fewrel"
+    ]
+    [
+      a cr:FileObject ;
+      sc:name "synthetic_fewrel_inverse.json" ;
+      sc:contentUrl "synthetic_fewrel_inverse.json" ;
+      sc:encodingFormat "application/json" ;
+      sc:identifier "#synthetic_fewrel"
+    ]
+    [
+      a cr:FileObject ;
+      sc:name "fewrel_inverse_relation_descriptions" ;
+      sc:contentUrl "fewrel_inverse_relations.json" ;
+      sc:encodingFormat "application/json" ;
+      sc:identifier "#fewrel_meta"
+    ]
+  ) ;
+
+  cr:recordSet (
+    [
+      a cr:RecordSet ;
+      sc:name "fewrel_records" ;
+      sc:description "Records from the FewRel dataset distribution." ;
+
+      cr:field (
+        [
+          a cr:Field ;
+          sc:name "head_to_tail" ;
+          sc:description "The relation ID from head to tail." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#original_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].head_to_tail"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "tail_to_head" ;
+          sc:description "The inverse relation ID." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#original_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].tail_to_head"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "tokens" ;
+          sc:description "Tokenized sentence representation." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#original_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].tokens"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "head" ;
+          sc:description "Array containing [label, Wikidata ID, token indices] for the head entity." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#original_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].head"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "tail" ;
+          sc:description "Array containing [label, Wikidata ID, token indices] for the tail entity." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#original_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].tail"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "artificial_data" ;
+          sc:description "Mapping of original to synthetic entity names." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#synthetic_fewrel" ;
+            cr:extract [
+              cr:jsonPath "$[*].artificial_data"
+            ]
+          ]
+        ]
+      )
+    ]
+
+    [
+      a cr:RecordSet ;
+      sc:name "relation_metadata" ;
+      sc:description "Metadata for FewRel property IDs." ;
+
+      cr:field (
+        [
+          a cr:Field ;
+          sc:name "pid" ;
+          sc:description "The Wikidata property ID for the FewRel relation." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#fewrel_meta" ;
+            cr:extract [
+              cr:jsonPath "$[*].pid"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "name" ;
+          sc:description "The name of the relation." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#fewrel_meta" ;
+            cr:extract [
+              cr:jsonPath "$[*].name"
+            ]
+          ]
+        ]
+
+        [
+          a cr:Field ;
+          sc:name "definition" ;
+          sc:description "Semantic definition of the relation." ;
+          cr:dataType sc:Text ;
+          cr:source [
+            cr:fileObject "#fewrel_meta" ;
+            cr:extract [
+              cr:jsonPath "$[*].definition"
+            ]
+          ]
+        ]
+      )
+    ]
+  )
+] .
