@@ -1,0 +1,214 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeas": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "cr:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "data": { "@id": "cr:data", "@type": "@json" },
+    "dataType": { "@id": "cr:dataType", "@type": "@vocab" },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "reltype": "cr:reltype",
+    "sc": "https://schema.org/",
+    "source": "cr:source",
+    "structure": "cr:structure",
+    "variable": "cr:variable"
+  },
+  "@type": "sc:Dataset",
+  "name": "InverseRelationsBenchmark",
+  "description": "Comprehensive benchmark including FewRel and TekGen datasets with original entity mentions and artificial substitutions for robustness testing.",
+  "conformsTo": "http://mlcommons.org/croissant/1.0",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "original_fewrel",
+      "name": "original_fewrel_inverse.json",
+      "contentUrl": "original_fewrel_inverse.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "synthetic_fewrel",
+      "name": "synthetic_fewrel_inverse.json",
+      "contentUrl": "synthetic_fewrel_inverse.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "original_tekgen",
+      "name": "original_tekgen_inverse.json",
+      "contentUrl": "original_tekgen_inverse.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "synthetic_tekgen",
+      "name": "synthetic_tekgen_inverse.json",
+      "contentUrl": "synthetic_tekgen_inverse.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "fewrel_meta",
+      "name": "fewrel_inverse_relations.json",
+      "contentUrl": "fewrel_inverse_relations.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "tekgen_meta",
+      "name": "tekgen_inverse_relations.json",
+      "contentUrl": "tekgen_inverse_relations.json",
+      "encodingFormat": "application/json"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "name": "fewrel_records",
+      "description": "Records from the FewRel dataset distribution.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "name": "head_to_tail",
+          "description": "The relation ID from head to tail.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].head_to_tail" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "tail_to_head",
+          "description": "The inverse relation ID.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].tail_to_head" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "tokens",
+          "description": "Tokenized sentence representation.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].tokens" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "head",
+          "description": "Array containing [label, Wikidata ID, token indices] for the head entity.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].head" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "tail",
+          "description": "Array containing [label, Wikidata ID, token indices] for the tail entity.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].tail" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "relation_prop_wiki",
+          "description": "Full Wikidata URI properties for the relation.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_fewrel" }, "extract": { "jsonPath": "$[*].relation_prop_wiki" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "artificial_data",
+          "description": "Mapping of Original to Synthetic entity names.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "synthetic_fewrel" }, "extract": { "jsonPath": "$[*].artificial_data" } }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "name": "tekgen_records",
+      "description": "Records from the TekGen dataset distribution.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "name": "id",
+          "description": "Unique record identifier.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].id" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "head_to_tail",
+          "description": "Relation string (e.g., 'creator').",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].head_to_tail" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "tail_to_head",
+          "description": "Inverse relation string.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].tail_to_head" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "sent",
+          "description": "Full sentence string.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].sent" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "head",
+          "description": "Head entity name.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].head" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "tail",
+          "description": "Tail entity name.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "original_tekgen" }, "extract": { "jsonPath": "$[*].tail" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "artificial_data",
+          "description": "Substituted entity names for TekGen.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "artificial_tekgen" }, "extract": { "jsonPath": "$[*].artificial_data" } }
+        }
+      ]
+    },
+    {
+      "@type": "cr:RecordSet",
+      "name": "relation_metadata",
+      "description": "Merged metadata for FewRel property IDs and TekGen relation strings.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "name": "relation_identifier",
+          "description": "The P-ID for FewRel or the name for TekGen.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "fewrel_meta" }, "extract": { "jsonPath": "$[*].pid" } }
+        },
+        {
+          "@type": "cr:Field",
+          "name": "description",
+          "description": "Semantic definition of the relation.",
+          "dataType": "sc:Text",
+          "source": { "fileObject": { "@id": "tekgen_meta" }, "extract": { "jsonPath": "$.*.[inverse].description" } }
+        }
+      ]
+    }
+  ]
+}

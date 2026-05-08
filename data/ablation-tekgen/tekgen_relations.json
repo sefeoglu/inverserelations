@@ -1,0 +1,128 @@
+{
+    "astronaut mission":
+    {
+        "inverse":
+        {
+            "name":"crew member",
+            "description":"person that participated operating or serving aboard this vehicle"
+        },
+        "description":"space mission that the subject is or has been a member of (do not include future missions)"
+    },
+    "taxon synonym":
+    {
+        "inverse":
+        {
+            "name":"taxon synonym of",
+            "description":"name considered a preferred name, of which this item's taxon name is a synonym"
+        },
+        "description":"name listed as synonym of this item's taxon name"
+    },
+    "characters":
+    {
+        "inverse":
+        {
+            "name":"present in work",
+            "description":"this (fictional or fictionalized) entity, place, or person appears in that work as part of the narration (use P2860 for works citing other works, P361/P1433 for works being part of other works, P1343 for entities described in non-fictional accounts)"
+        },
+        "description":"characters which appear in this item (like plays, operas, operettas, books, comics, films, TV series, video games)"
+    },
+    "creator":
+    {
+        "inverse":
+        {
+            "name":"notable work",
+            "description":"notable scientific, artistic or literary work, or other work of significance among subject's works"
+        },
+        "description":"maker of this creative work or other object (where no more specific property exists)"
+    },
+    "coach of sports team":
+    {
+        "inverse":
+        {
+            "name":"head coach",
+            "description":"on-field manager or head coach of a sports club (not to be confused with a general manager P505, which is not a coaching position) or person"
+        },
+        "description":"sports club or team for which this person is or was on-field manager or coach"
+    },
+    "depicts":
+    {
+        "inverse":
+        {
+            "name":"depicted by",
+            "description":"object depicting this subject (object being creative works such as books, films, paintings)"
+        },
+        "description":"entity visually depicted in an image, literarily described in a work, or otherwise incorporated into an audiovisual or other medium; see also P921, 'main subject'"
+    },
+    "part of":
+    {
+        "inverse":
+        {
+            "name":"has part",
+            "description":"part of this subject; inverse property of part of (P361). See also has parts of the class (P2670)."
+        },
+        "description":"object of which the subject is a part (if this subject is already part of object A which is a part of object B, then please only make the subject part of object A), inverse property of has part (P527, see also has parts of the class (P2670))"
+    },
+    "position held":
+    {
+        "inverse":
+        {
+            "name":"officeholder",
+            "description":"persons who hold and/or held the position"
+        },
+        "description":"subject currently or formerly holds the object position or public office"
+    },
+    "cast member":
+    {
+        "inverse":
+        {
+            "name":"character role",
+            "description":"specific role played or filled by subject -- use only as qualifier of cast member (P161), voice actor (P725)"
+        },     
+        "description":"actor in the subject production [use character role (P453) and/or name of the character role (P4633) as qualifiers] [use voice actor (P725) for voice-only role] - [use recorded participant (P11108) for non-fiction productions]"
+    },
+    "followed by":
+    {
+        "inverse":
+        {
+            "name":"follows",
+            "description":"immediately prior item in a series of which the subject is a part, preferably use as qualifier of P179 [if the subject has replaced the preceding item, e.g. political offices, use replaces (P1365)]"
+        },
+        "description":"immediately following item in a series of which the subject is a part, preferably use as qualifier of P179 [if the subject has been replaced, e.g. political offices, use replaced by (P1366)]"
+    },
+    "based on":
+    {
+        "inverse":
+        {
+            "name":"derivative work",
+            "description":"new work of art (film, book, software, etc.) derived from major part of this work"
+        },
+        "description":"the work(s) or inputs used as the basis for subject item; for fictional analog use P1074"
+    },
+    "commanded by":
+    {
+        "inverse":
+        {
+            "name":"commander of",
+            "description":"for persons who are notable as commanding officers, the units they commanded"
+        },
+        "description":"commander of a military unit/army/security service, operation, etc."
+    },
+    "reservoir created":
+    {
+        "inverse":
+        {
+            "name":"dam",
+            "description":"construction impounding this watercourse or creating this reservoir"
+        },
+        "description":"reservoir created upstream of a dam by this dam"
+    },
+    "Habitat":
+    {
+        "inverse":
+        {
+            "name":"taxon found at location",
+            "description":"plant or animals taxon described as present in location, not countries or first-level subnational entities. Requires reference. Ref should cover a limited number of taxa for specific location."
+        },
+        "description":"the natural environment in which an organism lives, or the physical environment that surrounds a species population"
+    }
+}
