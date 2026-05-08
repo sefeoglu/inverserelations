@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import argparse
+from pathlib import Path
 
 from sklearn.metrics import (
     accuracy_score,
@@ -93,6 +94,9 @@ def gemini_convert_predictions(item):
 
 
 def mistral_convert_predictions(prediction):
+    """
+    Extracts predictions from Mistral model output.
+    """
     truths = [prediction["ground_truth_1"], prediction["ground_truth_2"]]
     pred_1, pred_2 = "", ""
 
@@ -106,6 +110,9 @@ def mistral_convert_predictions(prediction):
 
 
 def llama3_convert_predictions(prediction):
+    """
+    Extracts predictions from Llama3 model output.
+    """
     truths = [prediction["ground_truth_1"], prediction["ground_truth_2"]]
     pred_1, pred_2 = "", ""
 
@@ -119,6 +126,9 @@ def llama3_convert_predictions(prediction):
 
 
 def qwen_convert_predictions(prediction):
+    """
+    Extracts predictions from Qwen model output.
+    """
     return {
         "A": prediction["ground_truth_1"],
         "B": prediction["ground_truth_2"],
@@ -201,7 +211,7 @@ def evaluate_predictions(input_data, predictions_data, out_result_report):
         print(f"  F1-score:  {f:.3f}")
         print(f"  Support:   {s}")
 
-    print(f"Accuracy:        {accuracy:.3f}")
+    print(f"\nAccuracy:        {accuracy:.3f}")
     print(f"Macro Precision: {macro_precision:.3f}")
     print(f"Macro Recall:    {macro_recall:.3f}")
     print(f"Macro F1:        {macro_f1:.3f}")
@@ -226,74 +236,219 @@ def evaluate_predictions(input_data, predictions_data, out_result_report):
     }
 
     write_json_file(results, out_result_report)
+    print(f"\n✓ Results saved to: {out_result_report}")
+
+
+def evaluate_single_pair(ground_truth_file, predictions_file, output_file):
+    """
+    Evaluates a single ground truth vs predictions pair.
+    
+    Args:
+        ground_truth_file: Path to ground truth JSON file
+        predictions_file: Path to predictions JSON file
+        output_file: Path where evaluation report will be saved
+    """
+    print(f"\n{'='*70}")
+    print(f"Ground Truth: {ground_truth_file}")
+    print(f"Predictions : {predictions_file}")
+    print(f"Output      : {output_file}")
+    print(f"{'='*70}")
+
+    input_data = read_json_file(ground_truth_file)
+    predictions_data = read_json_file(predictions_file)
+
+    evaluate_predictions(input_data, predictions_data, output_file)
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evaluate model predictions against ground truth."
+        description="Evaluate model predictions against ground truth data.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Evaluate single prediction file
+  python evaluation_script.py \\
+    --ground-truth ground_truth.json \\
+    --predictions predictions.json \\
+    --output report.json
+
+  # Evaluate multiple models (batch evaluation)
+  python evaluation_script.py \\
+    --batch \\
+    --input-dir ./data \\
+    --predictions-dir ./predictions \\
+    --output-dir ./reports \\
+    --models model_flan-t5-xl model_Llama-3.1-8B-Instruct
+
+  # Batch evaluation with custom file patterns
+  python evaluation_script.py \\
+    --batch \\
+    --input-dir ./data \\
+    --predictions-dir ./predictions \\
+    --output-dir ./reports \\
+    --models model_flan-t5-xl \\
+    --input-file "templates_without_desc.json" \\
+    --predictions-pattern "predictions_{run_id}.json" \\
+    --output-pattern "report_{run_id}.json" \\
+    --run-ids 1 2 3
+        """
     )
-    parser.add_argument(
-        "--base_input_dir",
+
+    # Single evaluation mode
+    single_group = parser.add_argument_group('Single Evaluation Mode')
+    single_group.add_argument(
+        '--ground-truth',
         type=str,
-        default="/Users/sefika/phd_projects/converse_relations/data/mqa/fewrel",
-        help="Base directory containing input JSON files.",
+        help='Path to ground truth JSON file'
     )
-    parser.add_argument(
-        "--base_predictions_dir",
+    single_group.add_argument(
+        '--predictions',
         type=str,
-        default="/Users/sefika/phd_projects/converse_relations/results/fewrel/original",
-        help="Base directory containing prediction JSON files.",
+        help='Path to predictions JSON file'
     )
-    parser.add_argument(
-        "--base_output_dir",
+    single_group.add_argument(
+        '--output',
         type=str,
-        default="/Users/sefika/phd_projects/converse_relations/results/fewrel/original/report_class",
-        help="Base directory where evaluation reports will be saved.",
+        help='Path for output evaluation report'
+    )
+
+    # Batch evaluation mode
+    batch_group = parser.add_argument_group('Batch Evaluation Mode')
+    batch_group.add_argument(
+        '--batch',
+        action='store_true',
+        help='Enable batch evaluation mode'
+    )
+    batch_group.add_argument(
+        '--input-dir',
+        type=str,
+        default='.',
+        help='Base directory containing ground truth JSON files'
+    )
+    batch_group.add_argument(
+        '--predictions-dir',
+        type=str,
+        default='.',
+        help='Base directory containing prediction JSON files'
+    )
+    batch_group.add_argument(
+        '--output-dir',
+        type=str,
+        default='.',
+        help='Base directory where evaluation reports will be saved'
+    )
+    batch_group.add_argument(
+        '--input-file',
+        type=str,
+        default='templates_without_desc.json',
+        help='Input ground truth file name (default: templates_without_desc.json)'
+    )
+    batch_group.add_argument(
+        '--predictions-pattern',
+        type=str,
+        default='predictions_{run_id}.json',
+        help='Predictions file pattern with {run_id} placeholder'
+    )
+    batch_group.add_argument(
+        '--output-pattern',
+        type=str,
+        default='report_{run_id}.json',
+        help='Output report pattern with {run_id} placeholder'
+    )
+    batch_group.add_argument(
+        '--models',
+        type=str,
+        nargs='+',
+        default=['model_flan-t5-xl'],
+        help='List of model folder names to evaluate'
+    )
+    batch_group.add_argument(
+        '--run-ids',
+        type=int,
+        nargs='+',
+        default=[1],
+        help='List of run IDs to evaluate (default: [1])'
     )
 
     args = parser.parse_args()
 
-    experiments = ["original"]
-    input_files = ["original_templates_without_desc.json"]
-    models = [{"model":"google/flan-t5-xl", "folder":"model_flan-t5-xl"},
-              {"model":"meta-llama/Llama-3.1-8B-Instruct", "folder":"model_Llama-3.1-8B-Instruct"},
-              {"model":"Qwen/Qwen2.5-7B-Instruct", "folder": "model_Qwen2.5-7B-Instruct"},
-              {"model":"Qwen/Qwen3-4B-Instruct-2507", "folder":"model_Qwen3-4B-Instruct-2507"},
-              {"model":"mistralai/Mistral-7B-Instruct-v0.3", "folder":"model_Mistral-7B-Instruct-v0.3"}
+    # Validate mode
+    has_single_args = args.ground_truth and args.predictions and args.output
+    
+    if args.batch and has_single_args:
+        parser.error("Cannot use both --batch mode and single evaluation arguments together")
+    
+    if not args.batch and not has_single_args:
+        parser.error("Provide either --batch flag with batch arguments, or --ground-truth, --predictions, and --output for single evaluation")
 
-        ]
+    try:
+        if args.batch:
+            # Batch evaluation mode
+            print("\n" + "="*70)
+            print("BATCH EVALUATION MODE")
+            print("="*70)
+            print(f"Input Dir      : {args.input_dir}")
+            print(f"Predictions Dir: {args.predictions_dir}")
+            print(f"Output Dir     : {args.output_dir}")
+            print(f"Models         : {', '.join(args.models)}")
+            print(f"Run IDs        : {args.run_ids}")
+            print("="*70)
 
-    for model in models:
-        run_id =1
+            # Validate input file exists
+            input_path = os.path.join(args.input_dir, args.input_file)
+            if not os.path.exists(input_path):
+                raise FileNotFoundError(f"Ground truth file not found: {input_path}")
 
-        for exp in experiments:
-        
-            print(f"\nEvaluating Experiment: {exp}, Model: {model['model']}, Input File: {input_files[0]}")
-            gt_file = input_files[0]
+            for model_folder in args.models:
+                for run_id in args.run_ids:
+                    print(f"\n>>> Evaluating Model: {model_folder}, Run ID: {run_id}")
 
-            input_path = os.path.join(args.base_input_dir, gt_file)
-            predictions_path = os.path.join(
-                args.base_predictions_dir,
-              
-                model["folder"],
-                f"tail_head_templates_without_desc_{run_id}.json",
-            )
-            output_path = os.path.join(
-                args.base_output_dir,
-                model["folder"],
-             
-                f"report_tail_head_templates_without_desc_{run_id}.json",
-            )
+                    predictions_file = args.predictions_pattern.format(run_id=run_id)
+                    output_file = args.output_pattern.format(run_id=run_id)
 
-            print(f"Experiment: {exp}, Model: {model['model']}, Input File: {gt_file}")
-            print(f"Ground Truth: {input_path}")
-            print(f"Predictions : {predictions_path}")
-            print(f"Output      : {output_path}")
+                    predictions_path = os.path.join(
+                        args.predictions_dir,
+                        model_folder,
+                        predictions_file
+                    )
+                    output_path = os.path.join(
+                        args.output_dir,
+                        model_folder,
+                        output_file
+                    )
 
-            input_data = read_json_file(input_path)
-            predictions_data = read_json_file(predictions_path)
+                    if not os.path.exists(predictions_path):
+                        print(f"⚠ Skipping: Predictions file not found: {predictions_path}")
+                        continue
 
-            evaluate_predictions(input_data, predictions_data, output_path)
+                    evaluate_single_pair(input_path, predictions_path, output_path)
+
+            print("\n" + "="*70)
+            print("✓ Batch evaluation completed!")
+            print("="*70)
+
+        else:
+            # Single evaluation mode
+            if not os.path.exists(args.ground_truth):
+                raise FileNotFoundError(f"Ground truth file not found: {args.ground_truth}")
+            if not os.path.exists(args.predictions):
+                raise FileNotFoundError(f"Predictions file not found: {args.predictions}")
+
+            evaluate_single_pair(args.ground_truth, args.predictions, args.output)
+
+    except FileNotFoundError as e:
+        print(f"✗ Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"✗ Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"✗ Error decoding JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"✗ Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
