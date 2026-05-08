@@ -29,29 +29,32 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 - and robustness under entity perturbation.
 
 # Repository Structure
-```bash
+```text
+.
 ├── LICENSE
 ├── README.md
 ├── data
-│   ├── ablation-tekgen
-│   └── mqa
-│       ├── fewrel
-│       └── tekgen
+│   ├── ablation-tekgen
+│   └── mqa
+│       ├── fewrel
+│       └── tekgen
 ├── figure
 ├── notebooks
-├── requirements.txt                --> Python dependencies
-├── reversing_arrows_croissant.ttl  ---> RDF representation of the benchmark
+├── requirements.txt                  # Python dependencies
+├── reversing_arrows_croissant.ttl    # RDF representation of the benchmark
 ├── src
-│   ├── analysis            --> Data analysis and visualization scripts
-│   ├── data_preparation    --> Scripts for dataset construction and synthetic entity generation
-│   ├── evaluation         --> Evaluation scripts for model performance analysis and run metrics calculation
-│   ├── llms             --> LLM prompting and response generation scripts
-│   ├── question_generation --> Scripts for generating multiple-choice questions with and without relation descriptions and mathematical variable entity anonymization
-│   ├── report           --> Metrics Results visualization and report generation scripts
-│   └── utils.py      --> Utility functions for read and write operations
+│   ├── analysis/                     # Data analysis and visualization scripts
+│   ├── data_preparation/             # Dataset construction and synthetic entity generation
+│   ├── evaluation/                   # Model evaluation and metrics computation
+│   ├── llms/                         # LLM prompting and response generation
+│   ├── question_generation/          # Multiple-choice question generation scripts
+│   │                                 # (with/without relation descriptions and
+│   │                                 # mathematical variable anonymization)
+│   ├── report/                       # Result visualization and report generation
+│   └── utils.py                      # Utility functions for file I/O operations
 ```
 ## Usage
-1. 
+1. Git clone the repository and navigate to the project directory:
 ```bash
 git clone https://github.com/sefeoglu/inverserelations.git
 cd inverserelations
