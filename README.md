@@ -1,6 +1,6 @@
 # Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs
 
-[![Hugging Face Dataset](https://img.shields.io/badge/🤗%20Dataset-Hugging%20Face-yellow)](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
+[![Hugging Face Dataset](https://img.shields.io/badge/🤗%20Dataset-Hugging%20Face-yellow)](https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations)
 [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.19650827.svg)](https://zenodo.org/records/19650827)
 [![DOI](https://img.shields.io/badge/DOI-10.57967%2Fhf%2F8462-blue)](https://doi.org/10.57967/hf/8462)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
@@ -8,188 +8,235 @@
 
 > *This work is currently under review for publication.*
 
-**Reversing Arrows** is a benchmark dataset designed to evaluate whether Large Language Models (LLMs) correctly understand the **direction-dependent semantics of inverse relations** in relation classification and text-to-knowledge-graph tasks.
+**Reversing Arrows** is a benchmark dataset for evaluating whether Large Language Models (LLMs) correctly capture the **direction-dependent semantics of inverse relations** in sentence-level relation classification and text-to-knowledge graph generation tasks. 
 
-Many semantic relations are inherently directional: reversing the subject and object changes the meaning of the relation entirely. For example, while:
+Inverse relations are semantically sensitive because reversing the argument order changes the meaning of the relation. For example:
 
-> *Telephasa is the child of Phoenix*
+- `(Telephassa, mother, Phoenix)`
+- `(Phoenix, child, Telephassa)`
 
-represents a **Child → Parent** relation, reversing the entities produces a semantically different relation:
-
-> *Phoenix is the parent of Telephasa*
+represent inverse semantic directions.
 
 <p align="center">
   <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="450"/>
 </p>
 
----
+Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 
-## Motivation
-
-Recent LLMs achieve strong performance on relation extraction and knowledge graph reasoning benchmarks. However, existing datasets rarely evaluate whether models truly capture the **directionality** of semantic relations.
-
-**Reversing Arrows** was created to systematically measure:
-
-- directional semantic understanding,
-- inverse relation reasoning,
-- robustness to entity perturbation,
-- structure-sensitive relation classification.
+- head-to-tail vs. tail-to-head relation interpretation,
+- sentence-level inverse relation classification,
+- direction-aware semantic understanding,
+- and robustness under entity perturbation.
 
 ---
 
-## Relation Types
+# Motivation
 
-| Relation Pair |
-|---|
-| Child ↔ Mother |
-| Child ↔ Father |
-| Follows ↔ Followed_by |
-| Has Part ↔ Part Of |
-| Employer ↔ Employee |
-| Owned By ↔ Owns |
-| Located In ↔ Contains |
+Large Language Models have demonstrated strong performance in:
+
+- relation extraction,
+- ontology learning,
+- knowledge graph generation,
+- and knowledge graph completion.
+
+However, existing benchmarks rarely evaluate whether models truly understand **relation directionality**. In directed knowledge graphs, semantic meaning depends on both the relation type and the direction between entities. 
+
+Previous studies report that relation classification models struggle when inverse relation pairs are included in the label space. 
+
+To address this limitation, we introduce a benchmark specifically designed for evaluating inverse relations at the sentence level.
 
 ---
 
-## Dataset Construction
+# Relation Types
 
-The dataset is constructed using:
+The benchmark contains the following inverse relation pairs derived from FewRel and Wikidata: 
+
+| Relation | Inverse Relation | Wikidata PIDs |
+|---|---|---|
+| Child | Mother (Parent) | P40 ↔ P25 |
+| Child | Father (Parent) | P40 ↔ P22 |
+| Follows | Followed by | P155 ↔ P156 |
+| Has part | Part of | P527 ↔ P361 |
+
+---
+
+# Dataset Construction
+
+The dataset is constructed from:
 
 - **FewRel 1.0**
-- **Wikidata**
+- **Wikidata** 
 
-Inverse relation pairs are retrieved and validated through:
+The construction process consists of:
 
-- Wikidata property mappings,
-- inverse-property verification,
-- directional consistency checks.
+1. Selecting candidate inverse relation pairs,
+2. Extracting head-tail entity pairs,
+3. Querying Wikidata properties,
+4. Filtering inverse property pairs,
+5. Assigning directional labels:
+   - head-to-tail,
+   - tail-to-head.
 
----
-
-## Dataset Statistics
+The benchmark contains:
 
 | Property | Value |
 |---|---|
 | Total Instances | 3,401 |
-| Relation Categories | 7 |
+| Relation Labels | 7 |
+| Evaluation Setup | Zero-shot MCQ |
 | Source Dataset | FewRel 1.0 |
 | Knowledge Base | Wikidata |
-| Evaluation Format | Multiple Choice |
-| Prompting Setup | Zero-shot |
+
 
 ---
 
-## Benchmark Variants
+# Benchmark Variants
 
-### Original Entities
+To analyze robustness and entity familiarity effects, the benchmark includes multiple variants. 
+
+## 1. Original Entities
 
 Uses the original entity mentions from FewRel.
 
-```text
-Barack Obama was born in Honolulu.
-```
-
-### Synthetic Entities
-
-Replaces original entities with synthetic alternatives to reduce memorization effects.
+### Example (Head → Tail)
 
 ```text
-Arven Malis was born in Tarevia.
-```
+What is the relation from Aage to Niels Bohr in the sentence?
 
-### Mathematical Variables
+Sentence:
+Niels Bohr and his son Aage, a physicist who acted as his father's assistant,
+arrived on 30 December on the first of several visits as a consultant.
 
-Replaces entities with anonymized placeholders such as `XXX` and `YYY`.
-
-```text
-XXX was born in YYY.
-```
-
----
-
-## Evaluation Tasks
-
-The benchmark supports experiments on:
-
-- inverse relation classification,
-- directional semantic understanding,
-- relation-aware prompting,
-- robustness under entity anonymization,
-- zero-shot reasoning over inverse relations.
-
-All evaluations are performed using **zero-shot multiple-choice prompting**.
-
----
-
-## Example Task
-
-Given the sentence:
-
-```text
-Marie Curie was born in Warsaw.
-```
-
-Determine the correct relation:
-
-```text
-A. place_of_birth
-B. birthplace_of
+A.) child
+B.) father
+C.) None of the above
 ```
 
 Correct Answer:
 
 ```text
-A. place_of_birth
+child
 ```
 
 ---
 
-## Resources
+## 2. Synthetic Entities
 
-- Dataset: [Hugging Face](https://huggingface.co/datasets/Sefika/FewRel_Converse_Relations)
-- Code: [GitHub Repository](https://github.com/sefeoglu/inverserelations)
-- Experimental Results: [Zenodo](https://zenodo.org/records/19650827)
+Original entities are replaced with synthetic alternatives using Presidio Anonymizer to evaluate sensitivity to familiar entities.
 
----
+### Example
 
-## Installation
+```text
+What is the relation from Aage to Devin Rodriguez in the sentence?
 
-```bash
-git clone https://github.com/sefeoglu/inverserelations.git
-cd inverserelations
-pip install -r requirements.txt
+Sentence:
+Devin Rodriguez and his son Aage, a physicist who acted as his father's assistant,
+arrived on 30 December on the first of several visits as a consultant.
+
+A.) child
+B.) father
+C.) None of the above
+```
+
+Correct Answer:
+
+```text
+child
 ```
 
 ---
 
-## Python Usage
+## 3. Mathematical Variables
 
-```python
-from datasets import load_dataset
+Entities are fully anonymized using mathematical variables such as `XXX` and `YYY`.
 
-dataset = load_dataset("Sefika/FewRel_Converse_Relations")
+### Example
 
-print(dataset)
-print(dataset["train"][0])
+```text
+What is the relation from XXX to YYY in the sentence?
+
+Sentence:
+YYY and his son XXX, a physicist who acted as his father's assistant,
+arrived on 30 December on the first of several visits as a consultant.
+
+A.) child
+B.) father
+C.) None of the above
 ```
+
+Correct Answer:
+
+```text
+child
+```
+
 
 ---
 
-## Citation
+# Prompting Strategies
+
+The benchmark evaluates zero-shot multiple-choice prompting under two settings:
+
+- **Without relation descriptions**
+- **With relation descriptions** 
+
+Each question contains:
+
+- A.) head-to-tail relation
+- B.) tail-to-head relation
+- C.) none of the above
+
+
+---
+
+# Evaluation
+
+The benchmark evaluates:
+
+- inverse relation classification,
+- directional semantic understanding,
+- robustness to entity perturbation,
+- and entity familiarity effects.
+
+All experiments are conducted using:
+
+- zero-shot prompting,
+- multiple-choice question formats,
+- micro-F1 evaluation. 
+
+The paper evaluates five open-source LLMs:
+
+- Flan-T5 XL
+- Llama-3.1-8B-Instruct
+- Qwen2.5-7B-Instruct
+- Qwen3-4B-Instruct
+- Mistral-7B-Instruct-v0.3
+
+---
+
+
+
+# Resources
+
+- Dataset: https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations
+- Code: https://github.com/sefeoglu/inverserelations
+- Experimental Results: https://zenodo.org/records/19650827
+
+---
+
+# Citation
 
 ```bibtex
-@misc{fewrel_inverse_2026,
-  author       = {Sefeoglu},
-  title        = {Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
-  year         = {2026},
-  publisher    = {GitHub and Hugging Face},
-  howpublished = {\url{https://github.com/sefeoglu/inverserelations}},
-  doi          = {10.57967/hf/8462}
+@inproceedings{efeoglu2026reversing,
+  title={Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
+  author={Efeoglu, Sefika and Paschke, Adrian},
+  booktitle={ISWC 2026 Resource Track},
+  year={2026}
 }
 ```
 
 ---
 
-## License
+# License
 
 This project is released under the **MIT License**.
