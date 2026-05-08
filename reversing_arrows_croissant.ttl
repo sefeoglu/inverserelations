@@ -24,7 +24,7 @@
     ]
     [
       a cr:FileObject ;
-      sc:name "fewrel_inverse_relation_descriptions" ;
+      sc:name "fewrel_meta" ;
       sc:contentUrl "fewrel_inverse_relations.json" ;
       sc:encodingFormat "application/json" ;
       sc:identifier "#fewrel_meta"
