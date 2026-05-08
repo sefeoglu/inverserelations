@@ -71,14 +71,22 @@ All evaluations are performed using zero-shot multiple-choice prompting.
 - Experimental Results: [Zenodo](https://zenodo.org/records/19650827)
 
 
+## MIT License
+
 ## Citation
 
 ```bibtex
-@misc{efeoglu2026reversing,
-  title={Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
-  author={Efeoglu, Sefika and Paschke, Adrian},
-  year={2026}
+
+@misc{fewrel_inverse_2025,
+  author = {Sefeoglu},
+  title = { Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
+  year = {2026},
+  publisher = {GitHub/HuggingFace},
+  journal = {GitHub repository},
+  doi = { 10.57967/hf/8462 },
+  howpublished = {https://github.com/sefeoglu/inverserelations}
 }
+
 
 
 
