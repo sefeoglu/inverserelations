@@ -16,6 +16,7 @@ MATH_ENTITY_2 = "YYYY"
 
 
 def build_sentence(tokens, source_entity_1, source_entity_2, target_entity_1, target_entity_2, lowercase=False):
+    """Build a sentence from tokens and replace the two entity mentions."""
     sentence = " ".join(tokens)
     if lowercase:
         sentence = sentence.lower()
@@ -23,6 +24,7 @@ def build_sentence(tokens, source_entity_1, source_entity_2, target_entity_1, ta
 
 
 def find_relation(relations, pid):
+    """Return the relation name and definition for a PID, or empty strings if not found."""
     for relation_item in relations:
         if relation_item["pid"] == pid:
             return relation_item["name"], relation_item["definition"]

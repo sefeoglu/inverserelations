@@ -44,6 +44,7 @@ def read_json_file(file_path):
 
 
 def read_json(file_path):
+    """Compatibility alias for read_json_file."""
     return read_json_file(file_path)
 
 
@@ -63,6 +64,7 @@ def write_json_file(data, file_path):
 
 
 def write_json(data, file_path):
+    """Compatibility alias for write_json_file."""
     write_json_file(data, file_path)
 
 
