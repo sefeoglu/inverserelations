@@ -13,6 +13,7 @@ from utils import read_json_file, write_json_file
 
 MATH_ENTITY_1 = "XXXX"
 MATH_ENTITY_2 = "YYYY"
+ARTIFICIAL_ENTITY_KEY = "Artifical"
 
 
 def build_sentence(tokens, source_entity_1, source_entity_2, target_entity_1, target_entity_2, lowercase=False):
@@ -30,9 +31,21 @@ def find_relation(relations, pid):
             return relation_item["name"], relation_item["definition"]
     return "", ""
 
+
+def get_required_item_value(item, key):
+    """Read a required item field and raise a descriptive error if it is missing."""
+    if key not in item:
+        raise KeyError(f"Missing required key '{key}' in input item: {item}")
+    return item[key]
+
+
+def get_artificial_entity(item, index):
+    """Return the synthetic entity value using the dataset's existing field name."""
+    return item['artificial_data'][index][ARTIFICIAL_ENTITY_KEY]
+
 def relation_info(item, relations):
-    rel_pid1 = item['head_to_tail']
-    rel_pid2 = item['tail_to_head']
+    rel_pid1 = get_required_item_value(item, 'head_to_tail')
+    rel_pid2 = get_required_item_value(item, 'tail_to_head')
     rel_name1, rel_desc1 = find_relation(relations, rel_pid1)
     rel_name2, rel_desc2 = find_relation(relations, rel_pid2)
 
@@ -51,8 +64,8 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
         sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2)
         template = f""" What is the relation from {a_entity1} to {a_entity2} in the sentence?
                 Sentence: {sent}
@@ -96,8 +109,8 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
         sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2)
         template = f""" What is the relation from {a_entity2} to {a_entity1} in the sentence?
                 Sentence: {sent}
@@ -139,8 +152,8 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
         sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2, lowercase=True)
         template = f""" What is the relation from {a_entity1} to {a_entity2} in the sentence?
                     Sentence: {sent}
@@ -181,8 +194,8 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     
     rel_name1, rel_name2, rel_desc1, rel_desc2 = relation_info(item, relations)
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
         sent = build_sentence(item['tokens'], item['head'][0], item['tail'][0], a_entity1, a_entity2)
 
         template = f""" What is the relation from {a_entity2} to {a_entity1} in the sentence?
