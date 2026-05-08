@@ -27,6 +27,14 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 - sentence-level inverse relation classification,
 - direction-aware semantic understanding,
 - and robustness under entity perturbation.
+# Resources
+| Resource             | Link                                                                                                                       | Description                                                                                                                                                                   |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dataset              | [FewRel_Inverse_Relations Dataset](https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations?utm_source=chatgpt.com) | Benchmark dataset for evaluating inverse relation directionality and entity substitution robustness in relation extraction models, derived from FewRel. ([huggingface.co][1]) |
+| Code                 | [inverserelations GitHub Repository](https://github.com/sefeoglu/inverserelations?utm_source=chatgpt.com)                  | Source code and scripts for generating synthetic inverse-relation data and running experiments associated with the dataset. ([huggingface.co][1])                             |
+| Experimental Results | [Zenodo Experimental Results Archive](https://zenodo.org/records/19650827?utm_source=chatgpt.com)                          | Archived experimental outputs, evaluation artifacts, and reproducibility materials associated with the benchmark.                                                             |
+
+[1]: https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations/blob/main/README.md?utm_source=chatgpt.com "README.md · Sefika/FewRel_Inverse_Relations at main"
 
 # Repository Structure
 ```text
@@ -242,13 +250,7 @@ The paper evaluates five open-source LLMs:
 
 ---
 
-# Resources
 
-- Dataset: https://huggingface.co/datasets/Sefika/FewRel_Inverse_Relations
-- Code: https://github.com/sefeoglu/inverserelations
-- Experimental Results: https://zenodo.org/records/19650827
-
----
 
 # Citation
 
