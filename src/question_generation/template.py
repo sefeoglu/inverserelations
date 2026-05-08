@@ -3,95 +3,57 @@ import os
 import sys
 import json
 import argparse
+from pathlib import Path
 
-def read_json_file(file_path):
-    """
-    Reads a JSON file and returns its content.
-    
-    Args:
-        file_path (str): The path to the JSON file.
-        
-    Returns:
-        dict: The content of the JSON file.
-    """
+SRC_ROOT = Path(__file__).resolve().parents[1]
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"The file {file_path} does not exist.")
-    
-    with open(file_path, 'r') as file:
-        return json.load(file)
-    
-def write_json_file(data, file_path):
-    """
-    Writes data to a JSON file.
-    
-    Args:
-        data (dict): The data to be written to the file.
-        file_path (str): The path to the JSON file.
-    """
-    if os.path.exists(file_path):
-        print(f"Warning: The file {file_path} already exists and will be overwritten.", file=sys.stderr)
-    
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
+from utils import read_json_file, write_json_file
+
+MATH_ENTITY_1 = "XXXX"
+MATH_ENTITY_2 = "YYYY"
+ARTIFICIAL_ENTITY_KEY = "Artifical"
 
 
-def write_json_str(data, file_path):
-    """
-    Writes data to a JSON file, converting non-serializable types (like sets).
+def build_sentence(tokens, source_entity_1, source_entity_2, target_entity_1, target_entity_2, lowercase=False):
+    """Build a sentence from tokens and replace the two entity mentions."""
+    sentence = " ".join(tokens)
+    if lowercase:
+        sentence = sentence.lower()
+    return sentence.replace(source_entity_1, target_entity_1).replace(source_entity_2, target_entity_2)
 
-    Args:
-        data (dict): The data to be written to the file.
-        file_path (str): The path to the JSON file.
-    """
-    def convert(obj):
-        if isinstance(obj, set):
-            return list(obj)
-        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
-    if os.path.exists(file_path):
-        print(f"Warning: The file {file_path} already exists and will be overwritten.", file=sys.stderr)
-    
-    json_str = json.dumps(data, indent=4, default=convert)
-    
-    with open(file_path, 'w') as file:
-        file.write(json_str)
-        
-def write_turtle_to_ttl(file_path, content):
-    """
-    Writes Turtle content to a TTL file.
-    
-    Args:
-        file_path (str): The path to the TTL file.
-        content (str): The Turtle content to be written.
-    """
-    content = "\n".join(content)  # Ensure content is a single string
-    content = content.replace(' .', '.')
-    content = content.replace(' ;', ';')
+def find_relation(relations, pid):
+    """Return the relation name and definition for a PID, or empty strings if not found."""
+    for relation_item in relations:
+        if relation_item["pid"] == pid:
+            return relation_item["name"], relation_item["definition"]
+    return "", ""
 
-    with open(file_path, 'w') as file:
-        file.write(content)
+
+def get_required_item_value(item, key):
+    """Read a required item field and raise a descriptive error if it is missing."""
+    if key not in item:
+        raise KeyError(f"Missing required key '{key}' in input item: {item}")
+    return item[key]
+
+
+def get_artificial_entity(item, index):
+    """Return the synthetic entity value using the dataset's existing field name."""
+    artificial_data = get_required_item_value(item, 'artificial_data')
+    if len(artificial_data) <= index:
+        raise KeyError(
+            f"Missing artificial_data[{index}] in input item: {item}"
+        )
+    return get_required_item_value(artificial_data[index], ARTIFICIAL_ENTITY_KEY)
 
 def relation_info(item, relations):
-    rel_desc1 = ""
-    rel_desc2 = ""
-    rel_pid1 = item['head_to_tail']
-    rel_pid2 = item['tail_to_head']
-    rel_name1 = ""
-    rel_name2 = ""
-    for relation_item in relations:
-        if relation_item['pid'] == rel_pid1:
-            print(rel_pid1, rel_pid2)
-            rel_desc1 = relation_item['definition']
-            rel_name1 = relation_item['name']
-            break
-    for relation_item in relations:
-        if relation_item['pid'] == rel_pid2:
-            print(rel_pid1, rel_pid2)
-            rel_desc2 = relation_item['definition']
-            rel_name2 = relation_item['name']
-            break
-    
+    rel_pid1 = get_required_item_value(item, 'head_to_tail')
+    rel_pid2 = get_required_item_value(item, 'tail_to_head')
+    rel_name1, rel_desc1 = find_relation(relations, rel_pid1)
+    rel_name2, rel_desc2 = find_relation(relations, rel_pid2)
+
     return rel_name1, rel_name2, rel_desc1, rel_desc2
         
         
@@ -107,9 +69,9 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
-        sent = ' '.join(item['tokens']).replace(o_entity1, a_entity1).replace(o_entity2, a_entity2)
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2)
         template = f""" What is the relation from {a_entity1} to {a_entity2} in the sentence?
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
@@ -118,9 +80,9 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
                 Please choose A, B, or C.
                 Answer:"""
     elif type_ent == "MT":
-        entity1 = "XXXX"
-        entity2 = "YYYY"
-        sent = ' '.join(item['tokens']).replace(o_entity1, entity1).replace(o_entity2, entity2)
+        entity1 = MATH_ENTITY_1
+        entity2 = MATH_ENTITY_2
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, entity1, entity2)
         template = f""" What is the relation from {entity1} to {entity2} in the sentence?
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
@@ -152,11 +114,9 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
-
-
-        sent = ' '.join(item['tokens']).replace(o_entity1, a_entity1).replace(o_entity2, a_entity2)
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2)
         template = f""" What is the relation from {a_entity2} to {a_entity1} in the sentence?
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
@@ -165,10 +125,9 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
                 Please choose A, B, or C.
                 Answer:"""
     elif type_ent == "MT":
-
-        entity1 = "XXXX"
-        entity2 = "YYYY"
-        sent = ' '.join(item['tokens']).replace(o_entity1, entity1).replace(o_entity2, entity2)
+        entity1 = MATH_ENTITY_1
+        entity2 = MATH_ENTITY_2
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, entity1, entity2)
         template = f""" What is the relation from {entity2} to {entity1} in the sentence?
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
@@ -198,12 +157,9 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
     o_entity1 = item['head'][0]
     o_entity2 = item['tail'][0]
     if type_ent == "AI":
-        print("AI   ENTITIES", item['artificial_data'])
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
-        sent = ' '.join(item['tokens'])
-        sent = sent.lower().replace(o_entity1, a_entity1).replace(o_entity2, a_entity2)
-        print("AI   SENTENCE", sent)
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, a_entity1, a_entity2, lowercase=True)
         template = f""" What is the relation from {a_entity1} to {a_entity2} in the sentence?
                     Sentence: {sent}
                     A .) {rel_name1}.
@@ -212,10 +168,9 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
                     Please choose A, B, or C.
                     Answer:"""
     elif type_ent == "MT":
-        entity1 = "XXXX"
-        entity2 = "YYYY"
-        print("MT   ENTITIES", entity1, entity2)
-        sent = ' '.join(item['tokens']).lower().replace(o_entity1, entity1).replace(o_entity2, entity2)
+        entity1 = MATH_ENTITY_1
+        entity2 = MATH_ENTITY_2
+        sent = build_sentence(item['tokens'], o_entity1, o_entity2, entity1, entity2, lowercase=True)
         template = f""" What is the relation from {entity1} to {entity2} in the sentence?
                     Sentence: {sent}
                     A .) {rel_name1}.
@@ -244,9 +199,9 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     
     rel_name1, rel_name2, rel_desc1, rel_desc2 = relation_info(item, relations)
     if type_ent == "AI":
-        a_entity1 = item['artificial_data'][0]['Artifical']
-        a_entity2 = item['artificial_data'][1]['Artifical']
-        sent = ' '.join(item['tokens']).replace(item['head'][0], a_entity1).replace(item['tail'][0], a_entity2)
+        a_entity1 = get_artificial_entity(item, 0)
+        a_entity2 = get_artificial_entity(item, 1)
+        sent = build_sentence(item['tokens'], item['head'][0], item['tail'][0], a_entity1, a_entity2)
 
         template = f""" What is the relation from {a_entity2} to {a_entity1} in the sentence?
                     Sentence: {sent}
@@ -256,9 +211,9 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
                     Please choose A, B, or C.
                     Answer:"""
     elif type_ent == "MT":
-        entity1 = "XXXX"
-        entity2 = "YYYY"
-        sent = ' '.join(item['tokens']).replace(item['head'][0], entity1).replace(item['tail'][0], entity2)
+        entity1 = MATH_ENTITY_1
+        entity2 = MATH_ENTITY_2
+        sent = build_sentence(item['tokens'], item['head'][0], item['tail'][0], entity1, entity2)
         template = f""" What is the relation from {entity2} to {entity1} in the sentence?
                     Sentence: {sent}
                     A .) {rel_name1}.
@@ -331,13 +286,13 @@ def main():
         epilog="""
 Examples:
   # Generate templates for mathematical variables
-  python script.py --mode mt --data data.json --relations relations.json --output output.json
+  python src/question_generation/template.py --mode mt --data data.json --relations relations.json --output output.json
 
   # Generate templates for artificial data
-  python script.py --mode ai --data data.json --relations relations.json --output output.json
+  python src/question_generation/template.py --mode ai --data data.json --relations relations.json --output output.json
 
   # Generate templates for fewrel (default mode)
-  python script.py --mode fewrel --data data.json --relations relations.json --output output.json
+  python src/question_generation/template.py --mode fewrel --data data.json --relations relations.json --output output.json
         """
     )
 

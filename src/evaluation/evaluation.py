@@ -12,58 +12,11 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
 )
 
+SRC_ROOT = Path(__file__).resolve().parents[1]
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-def read_json_file(file_path):
-    """
-    Reads a JSON file and returns its content.
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"The file {file_path} does not exist.")
-
-    with open(file_path, "r", encoding="utf-8") as file:
-        return json.load(file)
-
-
-def write_json_file(data, file_path):
-    """
-    Writes data to a JSON file.
-    Safely handles numpy arrays/scalars by converting them with default serializer.
-    """
-    def to_serializable(obj):
-        if hasattr(obj, "tolist"):
-            return obj.tolist()
-        if isinstance(obj, set):
-            return list(obj)
-        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
-
-    dirpath = os.path.dirname(file_path)
-    if dirpath:
-        os.makedirs(dirpath, exist_ok=True)
-
-    if os.path.exists(file_path):
-        print(
-            f"Warning: The file {file_path} already exists and will be overwritten.",
-            file=sys.stderr,
-        )
-
-    with open(file_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False, default=to_serializable)
-
-
-def write_turtle_to_ttl(file_path, content):
-    """
-    Writes Turtle content to a TTL file.
-    """
-    content = "\n".join(content)
-    content = content.replace(" .", ".")
-    content = content.replace(" ;", ";")
-
-    dirpath = os.path.dirname(file_path)
-    if dirpath:
-        os.makedirs(dirpath, exist_ok=True)
-
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(content)
+from utils import read_json_file, write_json_file
 
 
 def clean_response_label(response):
@@ -267,13 +220,13 @@ def main():
         epilog="""
 Examples:
   # Evaluate single prediction file
-  python evaluation_script.py \\
+  python src/evaluation/evaluation.py \\
     --ground-truth ground_truth.json \\
     --predictions predictions.json \\
     --output report.json
 
   # Evaluate multiple models (batch evaluation)
-  python evaluation_script.py \\
+  python src/evaluation/evaluation.py \\
     --batch \\
     --input-dir ./data \\
     --predictions-dir ./predictions \\
@@ -281,7 +234,7 @@ Examples:
     --models model_flan-t5-xl model_Llama-3.1-8B-Instruct
 
   # Batch evaluation with custom file patterns
-  python evaluation_script.py \\
+  python src/evaluation/evaluation.py \\
     --batch \\
     --input-dir ./data \\
     --predictions-dir ./predictions \\
