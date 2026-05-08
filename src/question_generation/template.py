@@ -41,7 +41,12 @@ def get_required_item_value(item, key):
 
 def get_artificial_entity(item, index):
     """Return the synthetic entity value using the dataset's existing field name."""
-    return item['artificial_data'][index][ARTIFICIAL_ENTITY_KEY]
+    artificial_data = get_required_item_value(item, 'artificial_data')
+    if len(artificial_data) <= index:
+        raise KeyError(
+            f"Missing artificial_data[{index}] in input item: {item}"
+        )
+    return get_required_item_value(artificial_data[index], ARTIFICIAL_ENTITY_KEY)
 
 def relation_info(item, relations):
     rel_pid1 = get_required_item_value(item, 'head_to_tail')
