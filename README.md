@@ -12,11 +12,11 @@
 
 Many semantic relations are inherently directional: reversing the subject and object changes the meaning of the relation entirely. For example, while:
 
-> *Alice is the child of Bob*
+> *Telephasa is the child of Phoenix*
 
 represents a **Child → Parent** relation, reversing the entities produces a semantically different relation:
 
-> *Bob is the parent of Alice*
+> *Phoenix is the parent of Telephasa*
 
 <p align="center">
   <img src="https://github.com/sefeoglu/inverserelations/blob/master/fig/example.png" width="450"/>
