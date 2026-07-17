@@ -39,51 +39,111 @@ Unlike existing benchmarks, **Reversing Arrows** explicitly evaluates:
 # Repository Structure
 ```text
 .
-├── LICENSE
-├── README.md
-├── data
-│   ├── ablation-tekgen
-│   └── mqa
-│       ├── fewrel
-│       └── tekgen
-├── figure
-├── notebooks
+├── data/                             # Dataset inputs, generated questions, and model outputs
+├── figure/                           # Figures used in the paper/README
+├── notebooks/                        # Exploratory notebooks
 ├── requirements.txt                  # Python dependencies
 ├── reversing_arrows_croissant.ttl    # RDF representation of the benchmark
-├── src
-│   ├── analysis/                     # Data analysis and visualization scripts
-│   ├── data_preparation/             # Dataset construction and synthetic entity generation
-│   ├── evaluation/                   # Model evaluation and metrics computation
-│   ├── llms/                         # LLM prompting and response generation
-│   ├── question_generation/          # Multiple-choice question generation scripts
-│   │                                 # (with/without relation descriptions and
-│   │                                 # mathematical variable anonymization)
-│   ├── report/                       # Result visualization and report generation
-│   └── utils.py                      # Utility functions for file I/O operations
+└── src/
+    ├── analysis/                     # Analysis and visualization scripts
+    ├── data_preparation/             # Wikidata enrichment and synthetic entity generation
+    ├── evaluation/                   # Cleaning predictions and computing metrics
+    ├── llms/                         # Hugging Face inference script
+    ├── question_generation/          # Prompt/template generation
+    ├── report/                       # Report generation helpers
+    └── utils.py                      # Shared JSON/Turtle file utilities
 ```
-## Usage
-1. Git clone the repository and navigate to the project directory:
+
+## Getting Started
+
+Clone the repository and install the dependencies:
+
 ```bash
 git clone https://github.com/sefeoglu/inverserelations.git
 cd inverserelations
+python -m pip install -r requirements.txt
+```
 
-```
-2. Install dependencies:
+All scripts in `src/` are intended to be run from the repository root with commands of the form `python src/...`.
+
+## Typical Workflow
+
+The repository is organized as a small pipeline: prepare data, generate question templates, run a model, and evaluate the predictions.
+
+### 1. Enrich FewRel data with Wikidata relations
+
+Use `src/data_preparation/construct_dataset.py` to load train/validation JSON files, attach relation metadata, and query Wikidata.
+
 ```bash
-pip install -r requirements.txt
+python src/data_preparation/construct_dataset.py \
+  --train-data /path/to/train_wiki.json \
+  --val-data /path/to/val_wiki.json \
+  --relations /path/to/pid2name_fewrel.json \
+  --output-dir ./data/mqa/fewrel/constructed
 ```
-3. Run Construction scripts to generate the dataset variants (original, synthetic, mathematical variables):
+
+This produces annotated train/validation JSON files in the output directory. The required train/validation inputs are not committed to the repository, so point the script at your local FewRel/Wikidata JSON files.
+
+### 2. Optionally create synthetic entities
+
+If you want entity-perturbed variants, run:
+
 ```bash
-python src/data_preparation/construct_dataset.py --input_dir ./data/mqa/fewrel --output_dir ./data/mqa/fewrel/constructed
+python src/data_preparation/artificial_entity_generation.py \
+  --input ./data/mqa/fewrel/constructed/val_fewrel.json \
+  --output ./data/mqa/fewrel/constructed/val_fewrel_artificial.json
 ```
-4. Run Question Generation scripts to create multiple-choice questions with and without relation descriptions:
+
+### 3. Generate multiple-choice question templates
+
+Use `src/question_generation/template.py` to create prompt files. The `--output` path is a base name; the script writes both `*_with_desc.json` and `*_without_desc.json`.
+
 ```bash
-python src/question_generation/generate_questions.py --input_dir ./data/mqa/fewrel/constructed --output_dir ./data/mqa/fewrel/questions
+python src/question_generation/template.py \
+  --mode fewrel \
+  --data /path/to/annotated_fewrel.json \
+  --relations /path/to/pid2name_fewrel.json \
+  --output ./data/mqa/fewrel/questions/val_templates.json
 ```
-5. Run Evaluation scripts to evaluate model predictions against ground truth and generate reports:
+
+Other supported modes:
+
+- `--mode ai` for artificial/synthetic entities
+- `--mode mt` for mathematical-variable anonymization (`XXXX`/`YYYY`)
+
+### 4. Run an LLM over the generated templates
+
+`src/llms/llm.py` reads a template file and writes model predictions.
+
 ```bash
-python src/evaluation/evaluation.py --ground-truth ./data/mqa/fewrel/questions
+python src/llms/llm.py \
+  --input_file ./data/mqa/fewrel/questions/val_templates_with_desc.json \
+  --output_file ./data/mqa/fewrel/predictions/flan_t5_with_desc.json \
+  --model_name google/flan-t5-xl
 ```
+
+### 5. Optionally normalize prediction output
+
+Some model outputs may need to be flattened before evaluation:
+
+```bash
+python src/evaluation/clean_answer.py \
+  --input ./data/mqa/fewrel/predictions/raw_predictions.json \
+  --output ./data/mqa/fewrel/predictions/clean_predictions.json
+```
+
+### 6. Evaluate predictions
+
+Evaluate a single predictions file:
+
+```bash
+python src/evaluation/evaluation.py \
+  --ground-truth ./data/mqa/fewrel/questions/val_templates_with_desc.json \
+  --predictions ./data/mqa/fewrel/predictions/clean_predictions.json \
+  --output ./data/mqa/fewrel/reports/flan_t5_with_desc.json
+```
+
+For larger experiments, `src/evaluation/evaluation.py --batch` can evaluate multiple model/run combinations and write one report per run.
 
 The benchmark contains the following inverse relation pairs derived from FewRel and Wikidata: 
 
@@ -256,13 +316,10 @@ The paper evaluates five open-source LLMs:
 
 ```bibtex
 
-@misc{fewrel_inverse_2025,
+@misc{fewrel_inverse_2026,
   author = {Sefika Efeoglu, and Adrian Paschke},
-  title = { Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
-  year = {2025},
-  publisher = {GitHub/HuggingFace},
-  doi = { 10.57967/hf/8462 },
-  howpublished = {https://github.com/sefeoglu/inverserelations}
+  title = {Reversing Arrows: A Benchmark Dataset for Inverse Relation Directionality in LLMs},
+  year = {2026}
 }
 
 ```

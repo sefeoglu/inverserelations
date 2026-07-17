@@ -8,42 +8,11 @@ from typing import Dict, List, Tuple, Optional
 
 from qwikidata.sparql import return_sparql_query_results
 
+SRC_ROOT = Path(__file__).resolve().parents[1]
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-def read_json(path: str) -> dict:
-    """
-    Read JSON file from disk.
-    
-    Args:
-        path: Path to JSON file
-        
-    Returns:
-        Parsed JSON data
-        
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        json.JSONDecodeError: If file is invalid JSON
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
-    
-    with open(path, 'r', encoding="utf-8") as f:
-        return json.load(f)
-
-
-def write_json(data: dict, path: str) -> None:
-    """
-    Write data to JSON file, creating directories as needed.
-    
-    Args:
-        data: Data to write
-        path: Path to output file
-    """
-    dir_path = os.path.dirname(path)
-    if dir_path and not os.path.exists(dir_path):
-        os.makedirs(dir_path, exist_ok=True)
-    
-    with open(path, 'w', encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+from utils import read_json, write_json
 
 
 def build_sparql_query(qid_1: str, qid_2: str) -> str:
@@ -264,20 +233,20 @@ def main():
         epilog="""
 Examples:
   # Basic usage
-  python wikidata_annotator.py \\
+  python src/data_preparation/construct_dataset.py \\
     --train-data train_wiki.json \\
     --val-data val_wiki.json \\
     --relations pid2name.json
 
   # Custom output directory
-  python wikidata_annotator.py \\
+  python src/data_preparation/construct_dataset.py \\
     --train-data train_wiki.json \\
     --val-data val_wiki.json \\
     --relations pid2name.json \\
     --output-dir ./annotated_data
 
   # With custom query delay and retry settings
-  python wikidata_annotator.py \\
+  python src/data_preparation/construct_dataset.py \\
     --train-data train_wiki.json \\
     --val-data val_wiki.json \\
     --relations pid2name.json \\
@@ -285,14 +254,14 @@ Examples:
     --max-retries 5
 
   # Generate mismatch reports
-  python wikidata_annotator.py \\
+  python src/data_preparation/construct_dataset.py \\
     --train-data train_wiki.json \\
     --val-data val_wiki.json \\
     --relations pid2name.json \\
     --report-mismatches
 
   # Minimal output (quiet mode)
-  python wikidata_annotator.py \\
+  python src/data_preparation/construct_dataset.py \\
     --train-data train_wiki.json \\
     --val-data val_wiki.json \\
     --relations pid2name.json \\
