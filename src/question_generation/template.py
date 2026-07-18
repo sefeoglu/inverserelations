@@ -1,4 +1,4 @@
-from random import shuffle
+from random import shuffle, choice
 import os
 import sys
 import json
@@ -55,6 +55,87 @@ def relation_info(item, relations):
     rel_name2, rel_desc2 = find_relation(relations, rel_pid2)
 
     return rel_name1, rel_name2, rel_desc1, rel_desc2
+
+
+def build_relation_pair_pool(data):
+    """Collect unique relation/inverse-relation PID pairs from the dataset."""
+    unique_pairs = []
+    seen_pairs = set()
+    for item in data:
+        pair = (
+            get_required_item_value(item, 'head_to_tail'),
+            get_required_item_value(item, 'tail_to_head')
+        )
+        if pair not in seen_pairs:
+            seen_pairs.add(pair)
+            unique_pairs.append(pair)
+    return unique_pairs
+
+
+def sample_negative_relation_pair(rel_pid1, rel_pid2, pair_pool, relations):
+    """Sample a real negative relation pair that differs from the item's true pair."""
+    rel_name1, _ = find_relation(relations, rel_pid1)
+    rel_name2, _ = find_relation(relations, rel_pid2)
+
+    candidates = []
+    for pair in pair_pool:
+        if pair == (rel_pid1, rel_pid2):
+            continue
+        cand_name1, _ = find_relation(relations, pair[0])
+        cand_name2, _ = find_relation(relations, pair[1])
+        if cand_name1 in {rel_name1, rel_name2}:
+            continue
+        if cand_name2 in {rel_name1, rel_name2}:
+            continue
+        candidates.append(pair)
+    if not candidates:
+        for pair in pair_pool:
+            cand_name1, _ = find_relation(relations, pair[0])
+            cand_name2, _ = find_relation(relations, pair[1])
+            if cand_name1 != rel_name1 and cand_name2 != rel_name2:
+                candidates.append(pair)
+    if not candidates:
+        candidates = [(rel_pid1, rel_pid2)]
+
+    neg_pid1, neg_pid2 = choice(candidates)
+    neg_name1, neg_desc1 = find_relation(relations, neg_pid1)
+    neg_name2, neg_desc2 = find_relation(relations, neg_pid2)
+    return neg_name1, neg_name2, neg_desc1, neg_desc2
+
+
+def add_negative_choice_to_prompt(template, negative_relation, negative_description="", include_desc=True):
+    """Inject a third option (C) into an existing prompt template."""
+    marker = "Please choose A or B."
+    lines = template.split("\n")
+
+    for i, line in enumerate(lines):
+        if marker in line:
+            indent = line[:line.index("P")]
+            if include_desc:
+                negative_line = f"{indent}C .) {negative_relation}: {negative_description}."
+            else:
+                negative_line = f"{indent}C .) {negative_relation}."
+            lines[i:i + 1] = [negative_line, f"{indent}Please choose A, B, or C."]
+            break
+
+    return "\n".join(lines)
+
+
+def normalize_prompt_indentation(template):
+    """Normalize generated prompt indentation for stable JSON output."""
+    lines = template.split("\n")
+    normalized_lines = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("Sentence:"):
+            normalized_lines.append(f"                    {stripped}")
+        elif stripped.startswith(("A .)", "B .)", "C .)", "Please choose", "Answer:")):
+            normalized_lines.append(f"                    {stripped}")
+        elif normalized_lines:
+            normalized_lines.append(line)
+        else:
+            normalized_lines.append(line)
+    return "\n".join(normalized_lines)
         
         
 def get_template_first(item: str, relations, type_ent = "AI") -> str:
@@ -76,8 +157,7 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
-                C .) None of the above.
-                Please choose A, B, or C.
+            Please choose A or B.
                 Answer:"""
     elif type_ent == "MT":
         entity1 = MATH_ENTITY_1
@@ -87,8 +167,7 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
-                C .) None of the above.
-                Please choose A, B, or C.
+            Please choose A or B.
                 Answer:"""
     else:
 
@@ -96,10 +175,9 @@ def get_template_first(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {' '.join(item['tokens'])}
                     A .) {rel_name1}: {rel_desc1}.
                     B .) {rel_name2}: {rel_desc2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
-    return template, rel_name1
+    return normalize_prompt_indentation(template), rel_name1
 
 def get_template_second(item: str, relations, type_ent = "AI") -> str:
     """
@@ -121,8 +199,7 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
-                C .) None of the above.
-                Please choose A, B, or C.
+            Please choose A or B.
                 Answer:"""
     elif type_ent == "MT":
         entity1 = MATH_ENTITY_1
@@ -132,18 +209,16 @@ def get_template_second(item: str, relations, type_ent = "AI") -> str:
                 Sentence: {sent}
                 A .) {rel_name1}: {rel_desc1}.
                 B .) {rel_name2}: {rel_desc2}.
-                C .) None of the above.
-                Please choose A, B, or C.
+            Please choose A or B.
                 Answer:"""
     else:
         template = f""" What is the relation from {item['tail'][0]} to {item['head'][0]} in the sentence?
                     Sentence: {' '.join(item['tokens'])}
                     A .) {rel_name1}: {rel_desc1}.
                     B .) {rel_name2}: {rel_desc2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
-    return template, rel_name2
+    return normalize_prompt_indentation(template), rel_name2
 
 def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
     """
@@ -164,8 +239,7 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {sent}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
     elif type_ent == "MT":
         entity1 = MATH_ENTITY_1
@@ -175,18 +249,16 @@ def get_template_nodesc_first(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {sent}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
     else:
-        template = f""" What is the relation from {item['h'][0]} to {item['t'][0]} in the sentence?
+        template = f""" What is the relation from {item['head'][0]} to {item['tail'][0]} in the sentence?
                     Sentence: {' '.join(item['tokens'])}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                Please choose A or B.
                     Answer:"""
-    return template, rel_name1
+    return normalize_prompt_indentation(template), rel_name1
 
 def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
     """
@@ -207,8 +279,7 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {sent}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
     elif type_ent == "MT":
         entity1 = MATH_ENTITY_1
@@ -218,8 +289,7 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {sent}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
     else:
         sent = ' '.join(item['tokens'])
@@ -227,13 +297,31 @@ def get_template_nodesc_second(item: str, relations, type_ent = "AI") -> str:
                     Sentence: {sent}
                     A .) {rel_name1}.
                     B .) {rel_name2}.
-                    C .) None of the above.
-                    Please choose A, B, or C.
+                    Please choose A or B.
                     Answer:"""
-    return template, rel_name2
+    return normalize_prompt_indentation(template), rel_name2
+
+
+def build_experiment_prompt_list(item):
+    """Build one list that combines the prompt pair for a single experiment."""
+    return [
+        {
+            "sample_type": "positive",
+            "prompt_id": "positive_1",
+            "prompt": item['template_1'],
+            "ground_truth": item['ground_truth_1']
+        },
+        {
+            "sample_type": "positive",
+            "prompt_id": "positive_2",
+            "prompt": item['template_2'],
+            "ground_truth": item['ground_truth_2']
+        }
+    ]
 
 def all_data(data, relations, out_file, type_ent = "AI"):
     templates = []
+    pair_pool = build_relation_pair_pool(data)
 
     for item in data:
         template, ground_truth_1 = get_template_first(item, relations, type_ent = type_ent)
@@ -241,6 +329,16 @@ def all_data(data, relations, out_file, type_ent = "AI"):
 
         template, ground_truth_2 = get_template_second(item, relations, type_ent = type_ent)
         item['template_2'], item['ground_truth_2'] = template, ground_truth_2
+
+        neg_name1, neg_name2, neg_desc1, neg_desc2 = sample_negative_relation_pair(
+            item['head_to_tail'],
+            item['tail_to_head'],
+            pair_pool,
+            relations
+        )
+        item['template_1'] = add_negative_choice_to_prompt(item['template_1'], neg_name1, neg_desc1, include_desc=True)
+        item['template_2'] = add_negative_choice_to_prompt(item['template_2'], neg_name2, neg_desc2, include_desc=True)
+        item['experiment_prompt_list'] = build_experiment_prompt_list(item)
         templates.append(item)
     shuffle(templates)
     write_json_file(templates, out_file)
@@ -248,6 +346,7 @@ def all_data(data, relations, out_file, type_ent = "AI"):
 
 def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
     templates = []
+    pair_pool = build_relation_pair_pool(data)
 
     for item in data:
         template, ground_truth_1 = get_template_nodesc_first(item, relations, type_ent = type_ent)
@@ -255,6 +354,16 @@ def all_data_nodesc(data, relations, out_file, type_ent = "AI"):
 
         template, ground_truth_2 = get_template_nodesc_second(item, relations, type_ent = type_ent)
         item['template_2'], item['ground_truth_2'] = template, ground_truth_2
+
+        neg_name1, neg_name2, _, _ = sample_negative_relation_pair(
+            item['head_to_tail'],
+            item['tail_to_head'],
+            pair_pool,
+            relations
+        )
+        item['template_1'] = add_negative_choice_to_prompt(item['template_1'], neg_name1, include_desc=False)
+        item['template_2'] = add_negative_choice_to_prompt(item['template_2'], neg_name2, include_desc=False)
+        item['experiment_prompt_list'] = build_experiment_prompt_list(item)
         templates.append(item)
     shuffle(templates)
     write_json_file(templates, out_file)
@@ -275,8 +384,8 @@ def fewrel_artificial_data(data_file, relations_file, out_file):
 def fewrel(data_file, relations_file, out_file):
     data = read_json_file(data_file)
     relations = read_json_file(relations_file)
-    all_data(data, relations, out_file.replace(".json", "_with_desc.json"))
-    all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"))
+    all_data(data, relations, out_file.replace(".json", "_with_desc.json"), "FEWREL")
+    all_data_nodesc(data, relations, out_file.replace(".json", "_without_desc.json"), "FEWREL")
 
 
 def main():
