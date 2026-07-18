@@ -190,30 +190,46 @@ The benchmark contains the following inverse relation pairs derived from FewRel 
 
 # Dataset Construction
 
-The dataset is constructed from:
+The benchmark uses two source datasets with inverse-direction labeling:
 
-- **FewRel 1.0**
-- **Wikidata** 
+- **FewRel 1.0** + Wikidata relation mapping
+- **Wiki_TekGen** relation/inverse-relation pairs
 
-The construction process consists of:
+The shared construction process consists of:
 
 1. Selecting candidate inverse relation pairs,
 2. Extracting head-tail entity pairs,
-3. Querying Wikidata properties,
-4. Filtering inverse property pairs,
-5. Assigning directional labels:
-   - head-to-tail,
-   - tail-to-head.
+3. Mapping directional relation labels,
+4. Assigning two directions per sample:
+  - head-to-tail,
+  - tail-to-head.
 
-The benchmark contains:
+## Dataset Profiles
 
-| Property | Value |
+| Dataset | Total Samples | Unique Relations | Notes |
+|---|---:|---:|---|
+| FewRel | 3401 | 7 | Relation labels resolved via FewRel/Wikidata mapping |
+| TekGen (with inverse pairs) | 3460 | 24 | Counts include both `head_to_tail` and `tail_to_head` labels |
+| Combined | 6861 | 27 | Union of relation labels across both datasets |
+
+## Per-Dataset Distribution Statistics
+
+| Dataset | Avg Samples/Relation | Median | Min | Max | Std Dev | Top Relation | Top Count |
+|---|---:|---:|---:|---:|---:|---|---:|
+| FewRel | 485.86 | 508.0 | 152 | 988 | 258.98 | child | 988 |
+| TekGen (with inverse) | 144.17 | 160.0 | 40 | 284 | 57.34 | characters | 284 |
+| Combined | 254.11 | 160.0 | 40 | 988 | 220.50 | child | 988 |
+
+## Cross-Dataset Relation Overlap
+
+| Metric | Value |
 |---|---|
-| Total Instances | 3,401 |
-| Relation Labels | 7 |
-| Evaluation Setup | Zero-shot MCQ |
-| Source Dataset | FewRel 1.0 |
-| Knowledge Base | Wikidata |
+| Shared relations count | 4 |
+| Shared relations | followed by, follows, has part, part of |
+| FewRel-only relations count | 3 |
+| FewRel-only relations | child, father, mother |
+| TekGen-only relations count | 20 |
+| Jaccard similarity | 0.1481 |
 
 
 ## Dataset Statistics Figures
@@ -234,6 +250,7 @@ Summary from the notebook statistics cell:
 |---|---:|---:|---|
 | FewRel | 3401 | 7 | Source inverse relation benchmark split |
 | TekGen (with inverse pairs counted) | 3460 | 24 | Includes both head-to-tail and tail-to-head labels |
+| Combined | 6861 | 27 | Union of relation labels from both datasets |
 
 Additional TekGen check: relation `follows` is present with count 126 when inverse pairs are included.
 
