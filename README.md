@@ -96,20 +96,52 @@ python src/data_preparation/artificial_entity_generation.py \
 
 ### 3. Generate multiple-choice question templates
 
-Use `src/question_generation/template.py` to create prompt files. The `--output` path is a base name; the script writes both `*_with_desc.json` and `*_without_desc.json`.
+The repository uses two prompt generators, one for FewRel-style data and one for TekGen-style data. Both produce JSON files with `template_1`, `ground_truth_1`, `template_2`, `ground_truth_2`, and `experiment_prompt_list`.
+
+#### FewRel prompts
+
+Use `src/question_generation/template.py` for FewRel-derived data. The `--output` path is a base name; the script writes both `*_with_desc.json` and `*_without_desc.json` under `data/mqa/fewrel/`.
 
 ```bash
 python src/question_generation/template.py \
   --mode fewrel \
-  --data /path/to/annotated_fewrel.json \
-  --relations /path/to/pid2name_fewrel.json \
-  --output ./data/mqa/fewrel/questions/val_templates.json
+  --data data/ablation-tekgen/original_fewrel_inverse.json \
+  --relations data/mqa/fewrel/pid2name_fewrel.json \
+  --output data/mqa/fewrel/original_templates.json
 ```
 
-Other supported modes:
+Other supported FewRel modes:
 
-- `--mode ai` for artificial/synthetic entities
+- `--mode ai` for synthetic/artificial entity replacements
 - `--mode mt` for mathematical-variable anonymization (`XXXX`/`YYYY`)
+
+#### TekGen prompts
+
+Use `src/question_generation/template_tekgen.py` for TekGen-derived data. The `--output` path is a base name; the script writes `*_with_desc.json` and optionally `*_without_desc.json` under `data/mqa/tekgen/`.
+
+```bash
+python src/question_generation/template_tekgen.py \
+  --data data/mqa/tekgen/tekgen_negative_test_with_desc.json \
+  --relations data/ablation-tekgen/tekgen_relations.json \
+  --output data/mqa/tekgen/tekgen_negative_test.json \
+  --type-ent TEKGEN \
+  --include-nodesc \
+  --include-negative
+```
+
+Other supported TekGen entity modes:
+
+- `--type-ent TEKGEN` for original TekGen entities
+- `--type-ent AI` for artificial entity replacements
+- `--type-ent MT` for mathematical-variable anonymization (`XXXX`/`YYYY`)
+
+#### Regenerate all current prompt files
+
+Use the helper script below to regenerate the current FewRel and TekGen prompt sets in their separate output folders:
+
+```bash
+./src/question_generation/run_all_prompt_generations.sh
+```
 
 ### 4. Run an LLM over the generated templates
 
@@ -117,7 +149,7 @@ Other supported modes:
 
 ```bash
 python src/llms/llm.py \
-  --input_file ./data/mqa/fewrel/questions/val_templates_with_desc.json \
+  --input_file ./data/mqa/fewrel/original_templates_with_desc.json \
   --output_file ./data/mqa/fewrel/predictions/flan_t5_with_desc.json \
   --model_name google/flan-t5-xl
 ```
@@ -138,7 +170,7 @@ Evaluate a single predictions file:
 
 ```bash
 python src/evaluation/evaluation.py \
-  --ground-truth ./data/mqa/fewrel/questions/val_templates_with_desc.json \
+  --ground-truth ./data/mqa/fewrel/original_templates_with_desc.json \
   --predictions ./data/mqa/fewrel/predictions/clean_predictions.json \
   --output ./data/mqa/fewrel/reports/flan_t5_with_desc.json
 ```
@@ -184,11 +216,33 @@ The benchmark contains:
 | Knowledge Base | Wikidata |
 
 
+## Dataset Statistics Figures
+
+The following figures are generated from `notebooks/dataset_viz.ipynb` and saved under `figure/`.
+
+### FewRel relation distribution
+
+![FewRel Samples per Relation](figure/fewrel_samples_per_relation.png)
+
+### TekGen relation distribution (with inverse pairs)
+
+![TekGen Samples per Relation (with inverse pairs)](figure/tekgen_samples_per_relation_inverse_pairs.png)
+
+Summary from the notebook statistics cell:
+
+| Dataset | Total Samples | Unique Relations | Notes |
+|---|---:|---:|---|
+| FewRel | 3401 | 7 | Source inverse relation benchmark split |
+| TekGen (with inverse pairs counted) | 3460 | 24 | Includes both head-to-tail and tail-to-head labels |
+
+Additional TekGen check: relation `follows` is present with count 126 when inverse pairs are included.
+
+
 ---
 
 # Benchmark Variants
 
-To analyze robustness and entity familiarity effects, the benchmark includes multiple variants. 
+To analyze robustness and entity familiarity effects, the benchmark includes multiple variants. FewRel prompt files are written under `data/mqa/fewrel/`, while TekGen prompt files are written under `data/mqa/tekgen/`.
 
 ## 1. Original Entities
 
@@ -205,7 +259,7 @@ arrived on 30 December on the first of several visits as a consultant.
 
 A.) child
 B.) father
-C.) None of the above
+C.) mother
 ```
 
 Correct Answer:
@@ -218,7 +272,7 @@ child
 
 ## 2. Synthetic Entities
 
-Original entities are replaced with synthetic alternatives using Presidio Anonymizer to evaluate sensitivity to familiar entities.
+Original entities are replaced with synthetic alternatives to evaluate sensitivity to familiar entities.
 
 ### Example
 
@@ -231,7 +285,7 @@ arrived on 30 December on the first of several visits as a consultant.
 
 A.) child
 B.) father
-C.) None of the above
+C.) mother
 ```
 
 Correct Answer:
@@ -244,20 +298,20 @@ child
 
 ## 3. Mathematical Variables
 
-Entities are fully anonymized using mathematical variables such as `XXX` and `YYY`.
+Entities are fully anonymized using mathematical variables such as `XXXX` and `YYYY`.
 
 ### Example
 
 ```text
-What is the relation from XXX to YYY in the sentence?
+What is the relation from XXXX to YYYY in the sentence?
 
 Sentence:
-YYY and his son XXX, a physicist who acted as his father's assistant,
+YYYY and his son XXXX, a physicist who acted as his father's assistant,
 arrived on 30 December on the first of several visits as a consultant.
 
 A.) child
 B.) father
-C.) None of the above
+C.) mother
 ```
 
 Correct Answer:
@@ -276,11 +330,19 @@ The benchmark evaluates zero-shot multiple-choice prompting under two settings:
 - **Without relation descriptions**
 - **With relation descriptions** 
 
-Each question contains:
+Each generated item contains two directional prompts plus an `experiment_prompt_list` wrapper for experiment-time iteration.
+
+FewRel prompts currently use the following structure:
 
 - A.) head-to-tail relation
 - B.) tail-to-head relation
-- C.) none of the above
+- C.) sampled negative relation
+
+TekGen negative prompt generation uses the same embedded choice pattern in the main prompts:
+
+- A.) head-to-tail relation
+- B.) tail-to-head relation
+- C.) sampled negative relation
 
 
 ---
