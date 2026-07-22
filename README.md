@@ -377,7 +377,7 @@ All experiments are conducted using:
 
 - zero-shot prompting,
 - multiple-choice question formats,
-- micro-F1 evaluation. 
+- macro-F1 evaluation. 
 
 The paper evaluates five open-source LLMs:
 
